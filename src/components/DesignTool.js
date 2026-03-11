@@ -145,7 +145,6 @@ const Gauge = ({ value, max = 100, color = C.green, label, size = 120 }) => {
   const cx = size / 2, cy = size / 2;
   const pct = Math.min(value / max, 1);
   const circumference = Math.PI * r; // semicircle
-  const dash = pct * circumference;
   const startAngle = Math.PI;
   const endAngle   = Math.PI + pct * Math.PI;
   const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
