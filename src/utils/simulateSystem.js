@@ -15,11 +15,12 @@ const NOCT    = 45;     // °C   — nominal operating cell temperature (typical
  * T_cell  = T_amb + (G/800) × (NOCT - 20)
  * α       = -0.004 /°C (typical crystalline silicon temperature coefficient)
  */
-function calcPVOutput(G_wm2, T_amb_C, P_rated_kW, alpha = -0.004) {
+function calcPVOutput(G_wm2, T_amb_C, P_rated_kW, alpha = -0.004, derating = 1.0, inverter_eta = 1.0) {
   if (G_wm2 <= 0) return 0;
-  const T_cell = T_amb_C + (G_wm2 / 800) * (NOCT - 20);
+  const T_cell    = T_amb_C + (G_wm2 / 800) * (NOCT - 20);
   const tempFactor = 1 + alpha * (T_cell - T_STC);
-  const P = P_rated_kW * (G_wm2 / G_STC) * tempFactor;
+  // Apply derating (soiling, wiring, mismatch) and inverter efficiency
+  const P = P_rated_kW * (G_wm2 / G_STC) * tempFactor * derating * inverter_eta;
   return Math.max(0, P);
 }
 
@@ -130,8 +131,14 @@ export function simulateSystem({ loadProfile, solarData, pvConfig, batteryConfig
     const ghi   = typeof solar === 'object' ? (solar.ghi || 0) : (solar || 0);
     const temp  = typeof solar === 'object' ? (solar.temp || 25) : 25;
 
-    // 1. PV generation
-    const p_pv = calcPVOutput(ghi, temp, pvConfig.capacity_kw, pvConfig.alpha || -0.004);
+    // 1. PV generation (with derating and inverter efficiency)
+    const p_pv = calcPVOutput(
+      ghi, temp,
+      pvConfig.capacity_kw,
+      pvConfig.alpha      || -0.004,
+      pvConfig.derating   || 1.0,
+      pvConfig.inverter_eta || 1.0,
+    );
     pv_output[h] = p_pv;
 
     // 2. Net power balance
@@ -161,22 +168,28 @@ export function simulateSystem({ loadProfile, solarData, pvConfig, batteryConfig
 
       // ── Generator dispatch if deficit remains ──
       if (remaining > 0.001 && genConfig.enabled) {
-        // Load following: generator only produces what is needed
-        p_gen = Math.min(remaining, genConfig.capacity_kw);
-        fuel  = calcFuelConsumption(p_gen, genConfig.capacity_kw);
+        const min_kw = (genConfig.min_load_pct || 0.30) * genConfig.capacity_kw;
 
-        // Optional cycle charging: if generator is running, charge battery with spare capacity
-        if (genConfig.cycleCharging && p_gen < genConfig.capacity_kw) {
-          const spare = genConfig.capacity_kw - p_gen;
-          const chargeResult = dispatchBattery(soc, spare, 0, batteryConfig);
-          soc      = chargeResult.soc_new;
-          charged += chargeResult.charged;
-          // Add actual charged power to fuel cost
-          const extraLoad = chargeResult.charged / (batteryConfig.eta_charge || 0.95);
-          fuel += calcFuelConsumption(extraLoad, genConfig.capacity_kw) * (extraLoad / genConfig.capacity_kw);
+        // Only start generator if deficit meets or exceeds minimum operating load
+        // (prevents wet-stacking from running at very low load)
+        if (remaining >= min_kw || remaining >= genConfig.capacity_kw * 0.1) {
+          // Load following: generator produces what is needed, but no less than min_kw
+          p_gen = Math.min(Math.max(remaining, min_kw), genConfig.capacity_kw);
+          fuel  = calcFuelConsumption(p_gen, genConfig.capacity_kw);
+
+          // Optional cycle charging: if generator is running, charge battery with spare capacity
+          if (genConfig.cycleCharging && p_gen < genConfig.capacity_kw) {
+            const spare = genConfig.capacity_kw - p_gen;
+            const chargeResult = dispatchBattery(soc, spare, 0, batteryConfig);
+            soc      = chargeResult.soc_new;
+            charged += chargeResult.charged;
+            const extraLoad = chargeResult.charged / (batteryConfig.eta_charge || 0.95);
+            fuel += calcFuelConsumption(extraLoad, genConfig.capacity_kw) * (extraLoad / genConfig.capacity_kw);
+          }
+
+          // Only credit what the load actually needed (excess gen charges battery or is wasted)
+          remaining -= Math.min(p_gen, remaining);
         }
-
-        remaining -= p_gen;
       }
 
       // Any remaining deficit after generator = unserved load
@@ -299,6 +312,7 @@ export function calculateFinancials({ simResult, systemConfig, financialConfig }
     battery_capacity_kwh,
     gen_capacity_kw,
     gen_enabled,
+    inverter_capacity_kw,
   } = systemConfig;
 
   const {
@@ -320,7 +334,9 @@ export function calculateFinancials({ simResult, systemConfig, financialConfig }
   const capex_pv       = pv_capacity_kw * pv_cost_per_kw;
   const capex_battery  = battery_capacity_kwh * battery_cost_per_kwh;
   const capex_gen      = gen_enabled ? gen_capacity_kw * gen_cost_per_kw : 0;
-  const capex_inverter = pv_capacity_kw * inverter_cost_per_kw;
+  // Use explicitly sized inverter if provided, otherwise fall back to PV capacity
+  const inv_kw         = inverter_capacity_kw || pv_capacity_kw;
+  const capex_inverter = inv_kw * inverter_cost_per_kw;
   const capex_hardware = capex_pv + capex_battery + capex_gen + capex_inverter;
   const capex_bos      = capex_pv * bos_pct;
   const capex_install  = capex_hardware * installation_pct;
@@ -508,23 +524,90 @@ export const NIGERIA_DEFAULTS = {
 
 /** Fetch hourly solar data from PVGIS API (TMY - Typical Meteorological Year) */
 export async function fetchPVGISSolar(lat, lng) {
-  const url = `https://re.jrc.ec.europa.eu/api/v5_2/tmy?lat=${lat}&lon=${lng}&outputformat=json&browser=1`;
-  const res  = await fetch(url);
-  if (!res.ok) throw new Error(`PVGIS API error: ${res.status}`);
-  const data = await res.json();
+  // Try PVGIS first, then NASA POWER, then throw to let caller use synthetic
+  const errors = [];
 
-  // PVGIS TMY returns hourly data in data.outputs.tmy_hourly
-  const hourly = data.outputs?.tmy_hourly;
-  if (!hourly || hourly.length < 8760) {
-    throw new Error('PVGIS returned insufficient hourly data');
+  // ── Source 1: PVGIS EU JRC ──────────────────────────────────────────────
+  try {
+    const url = `https://re.jrc.ec.europa.eu/api/v5_2/tmy?lat=${lat}&lon=${lng}&outputformat=json&browser=1`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (res.ok) {
+      const data = await res.json();
+      const hourly = data.outputs?.tmy_hourly;
+      if (hourly && hourly.length >= 8760) {
+        return hourly.map(h => ({
+          ghi:  h.G_Gh  || 0,
+          temp: h.T2m   || 25,
+          dhi:  h.G_Dh  || 0,
+          ws:   h.WS10m || 0,
+          source: 'PVGIS',
+        }));
+      }
+    }
+    errors.push(`PVGIS: HTTP ${res.status}`);
+  } catch (e) {
+    errors.push(`PVGIS: ${e.message}`);
   }
 
-  return hourly.map(h => ({
-    ghi:  h.G_Gh  || 0,   // Global Horizontal Irradiance (W/m²)
-    temp: h.T2m   || 25,  // Ambient temperature (°C)
-    dhi:  h.G_Dh  || 0,   // Diffuse Horizontal Irradiance
-    ws:   h.WS10m || 0,   // Wind speed (m/s) — for future wind module
-  }));
+  // ── Source 2: NASA POWER API ─────────────────────────────────────────────
+  // Returns daily averages by month — we scale to hourly using the same
+  // clearness distribution used by generateSyntheticSolar, but seeded with
+  // real NASA monthly values for much better accuracy than pure synthetic.
+  try {
+    const params = new URLSearchParams({
+      parameters: 'ALLSKY_SFC_SW_DWN,T2M',
+      community:  'RE',
+      longitude:  String(lng),
+      latitude:   String(lat),
+      format:     'JSON',
+    });
+    const url = `https://power.larc.nasa.gov/api/climatology/point?${params}`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const data = await res.json();
+      const ghi_monthly  = data.properties?.parameter?.ALLSKY_SFC_SW_DWN;
+      const temp_monthly = data.properties?.parameter?.T2M;
+
+      if (ghi_monthly && temp_monthly) {
+        // NASA returns monthly climatology keyed '01'–'12' plus 'ANN'
+        const MONTH_KEYS = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        const ghiByMonth  = MONTH_KEYS.map(k => ghi_monthly[k]  || 5.0);
+        const tempByMonth = MONTH_KEYS.map(k => temp_monthly[k] || 28.0);
+
+        // Build 8760-hour profile from NASA monthly values
+        const HOURLY_SHAPE = [
+          0,0,0,0,0,0.02,0.08,0.18,0.32,0.52,0.72,0.88,
+          1.00,0.92,0.78,0.58,0.35,0.15,0.04,0,0,0,0,0,
+        ];
+        const shapeSum = HOURLY_SHAPE.reduce((a, b) => a + b, 0);
+        const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+        const result = [];
+        for (let m = 0; m < 12; m++) {
+          const daily_wh = ghiByMonth[m] * 1000;
+          const peakGHI  = daily_wh / shapeSum;
+          const avgTemp  = tempByMonth[m];
+          for (let d = 0; d < DAYS_PER_MONTH[m]; d++) {
+            const cloudFactor = Math.random() > 0.3
+              ? (0.85 + Math.random() * 0.15)
+              : (0.3  + Math.random() * 0.40);
+            for (let hr = 0; hr < 24; hr++) {
+              const ghi  = Math.max(0, peakGHI * HOURLY_SHAPE[hr] * cloudFactor);
+              const temp = avgTemp + (hr >= 12 && hr <= 16 ? 3 : hr >= 22 || hr <= 5 ? -3 : 0);
+              result.push({ ghi: Math.round(ghi), temp: parseFloat(temp.toFixed(1)), source: 'NASA POWER' });
+            }
+          }
+        }
+        return result;
+      }
+    }
+    errors.push(`NASA POWER: HTTP ${res.status}`);
+  } catch (e) {
+    errors.push(`NASA POWER: ${e.message}`);
+  }
+
+  // Both APIs failed — throw so caller falls back to synthetic
+  throw new Error(`Solar APIs unavailable (${errors.join(' | ')}). Using synthetic data.`);
 }
 
 /** Embedded fallback TMY data for major Nigerian cities (daily averages scaled to hourly) */
