@@ -694,15 +694,7 @@ const DesignTool = () => {
 
   /* ─── RENDER ─────────────────────────────────────────────────────────── */
 
-  const glass = (extra = {}) => ({
-    background: 'rgba(17,25,22,0.92)',
-    backdropFilter: 'blur(16px)',
-    WebkitBackdropFilter: 'blur(16px)',
-    border: `1px solid ${C.border}`,
-    borderRadius: 12,
-    ...extra,
-  });
-
+  
   return (
     <>
       <link href={FONT_URL} rel="stylesheet" />
