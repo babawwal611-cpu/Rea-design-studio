@@ -200,7 +200,7 @@ export default function LandingPage({ onEnter }) {
           <span style={{
             fontSize: 9, fontFamily: MONO, color: C.textDim,
             padding: '2px 6px', background: `${C.blue}15`,
-            borderRadius: 4, letterSpacing: 1, color: C.blue,
+            borderRadius: 4, letterSpacing: 1,
           }}>BETA</span>
         </div>
 
