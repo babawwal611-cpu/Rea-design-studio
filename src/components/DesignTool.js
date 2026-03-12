@@ -187,10 +187,12 @@ const MonthlyBarChart = ({ monthly }) => {
 
   return (
     <svg id="chart-monthly" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
+      <defs> {/* ← ADD THIS MISSING OPENING TAG */}
+        <linearGradient id="pvBarGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={C.cyan} stopOpacity="0.9"/>
           <stop offset="100%" stopColor={C.cyanDark} stopOpacity="0.5"/>
         </linearGradient>
-      </defs>
+      </defs> {/* ← THIS CLOSING TAG WAS ALREADY THERE */}
       {monthly.map((m, i) => {
         const x   = padL + i * ((W - padL) / 12);
         const pvH  = maxVal > 0 ? (m.pv_kwh  / maxVal) * H : 0;
@@ -210,7 +212,6 @@ const MonthlyBarChart = ({ monthly }) => {
     </svg>
   );
 };
-
 /* ─── SOC Profile Chart (annual, sampled every 24h) ─────────────────────── */
 const SOCChart = ({ soc_array, capacity_kwh, dod }) => {
   if (!soc_array) return null;
@@ -226,10 +227,12 @@ const SOCChart = ({ soc_array, capacity_kwh, dod }) => {
   const MONTH_DAYS = [0,31,59,90,120,151,181,212,243,273,304,334];
   return (
     <svg id="chart-soc" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
+      <defs> {/* ← ADD THIS MISSING OPENING TAG */}
+        <linearGradient id="socGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={C.blueBright} stopOpacity="0.35"/>
           <stop offset="100%" stopColor={C.blueBright} stopOpacity="0.02"/>
         </linearGradient>
-      </defs>
+      </defs> {/* ← THIS CLOSING TAG WAS ALREADY THERE */}
       <line x1={padL} y1={toY(minPct)} x2={W} y2={toY(minPct)} stroke={`${C.red}60`} strokeWidth={1} strokeDasharray="4,3" />
       <text x={padL - 2} y={toY(minPct) + 3} textAnchor="end" fill={C.red} fontSize={7} fontFamily="'DM Sans',sans-serif">DoD</text>
       <line x1={padL} y1={toY(100)} x2={W} y2={toY(100)} stroke={`${C.borderHi}`} strokeWidth={0.5} />
@@ -244,7 +247,6 @@ const SOCChart = ({ soc_array, capacity_kwh, dod }) => {
     </svg>
   );
 };
-
 /* ─── Hourly Power Balance Chart (one sample week) ──────────────────────── */
 const HourlyChart = ({ hourly, weekStart = 0 }) => {
   if (!hourly) return null;
@@ -1019,8 +1021,6 @@ const DesignTool = ({ onBack }) => {
   }, [sim, fin, project, system, solar, finance, load]);
 
   /* ─── RENDER ─────────────────────────────────────────────────────────── */
-  });
-
   return (
     <>
       <link href={FONT_URL} rel="stylesheet" />
