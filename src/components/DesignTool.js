@@ -10,25 +10,25 @@ import {
   NIGERIA_CITIES_SOLAR,
 } from '../utils/simulateSystem';
 
-/* ─── Design Tokens ──────────────────────────────────────────────────────── */
+/* ─── Design Tokens — Light Theme ───────────────────────────────────────── */
 const C = {
-  bg:        '#020810',
-  surface:   '#080F1A',
-  panel:     '#0B1524',
-  border:    '#0F2240',
-  borderHi:  '#1A3A60',
-  cyan:      '#00D4FF',
-  cyanDark:  '#0088CC',
-  cyanDim:   '#041828',
+  bg:        '#F4F7FB',
+  surface:   '#FFFFFF',
+  panel:     '#FFFFFF',
+  border:    '#E2EAF2',
+  borderHi:  '#C5D5E8',
+  cyan:      '#0070CC',
+  cyanDark:  '#005099',
+  cyanDim:   '#EAF3FC',
   blue:      '#2563EB',
   blueBright:'#3B9EFF',
-  gold:      '#F0C040',
-  goldDim:   '#2A1E00',
-  red:       '#FF4757',
-  purple:    '#818CF8',
-  text:      '#D0E8F5',
-  textMid:   '#4A7FA0',
-  textDim:   '#1A3A55',
+  gold:      '#D97706',
+  goldDim:   '#FEF3C7',
+  red:       '#DC2626',
+  purple:    '#7C3AED',
+  text:      '#1A2B3C',
+  textMid:   '#4A6580',
+  textDim:   '#94A3B8',
   white:     '#FFFFFF',
 };
 
@@ -53,13 +53,13 @@ const Input = ({ value, onChange, type = 'number', min, max, step, placeholder, 
       min={min} max={max} step={step} placeholder={placeholder}
       style={{
         width: '100%', padding: '10px 14px', paddingRight: unit ? 48 : 14,
-        background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8,
+        background: '#F8FAFC', border: `1px solid ${C.border}`, borderRadius: 8,
         color: C.text, fontSize: 13, fontFamily: "'IBM Plex Mono', monospace",
         outline: 'none', transition: 'border 0.2s, box-shadow 0.2s',
         ...style,
       }}
-      onFocus={e => { e.target.style.borderColor = C.cyan; e.target.style.boxShadow = `0 0 0 2px ${C.cyan}20`; }}
-      onBlur={e  => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
+      onFocus={e => { e.target.style.borderColor = C.cyan; e.target.style.boxShadow = `0 0 0 3px ${C.cyan}18`; e.target.style.background = '#fff'; }}
+      onBlur={e  => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; e.target.style.background = '#F8FAFC'; }}
     />
     {unit && <span style={{ position: 'absolute', right: 12, fontSize: 10, color: C.textDim, fontFamily: "'DM Sans', sans-serif", pointerEvents: 'none' }}>{unit}</span>}
   </div>
@@ -67,7 +67,7 @@ const Input = ({ value, onChange, type = 'number', min, max, step, placeholder, 
 
 const Select = ({ value, onChange, options, style = {} }) => (
   <select value={value} onChange={e => onChange(e.target.value)} style={{
-    width: '100%', padding: '10px 14px', background: C.surface,
+    width: '100%', padding: '10px 14px', background: '#F8FAFC',
     border: `1px solid ${C.border}`, borderRadius: 8, color: C.text,
     fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: 'none', cursor: 'pointer', ...style,
   }}>
@@ -79,22 +79,23 @@ const Toggle = ({ checked, onChange, color = C.cyan }) => (
   <button onClick={() => onChange(!checked)} style={{
     width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
     background: checked ? color : C.border, position: 'relative', transition: 'all 0.2s', flexShrink: 0,
-    boxShadow: checked ? `0 0 12px ${color}60` : 'none',
+    boxShadow: checked ? `0 2px 6px ${color}40` : 'none',
   }}>
     <span style={{
       position: 'absolute', top: 3, left: checked ? 23 : 3, width: 18, height: 18,
       borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
     }} />
   </button>
 );
 
 const Btn = ({ children, onClick, variant = 'primary', disabled, style = {}, icon }) => {
   const variants = {
-    primary:   { background: `linear-gradient(135deg, ${C.cyanDark}, ${C.cyan})`, color: C.bg, border: 'none', boxShadow: `0 0 20px ${C.cyan}30` },
-    secondary: { background: 'transparent', color: C.cyan, border: `1px solid ${C.borderHi}` },
+    primary:   { background: `linear-gradient(135deg, ${C.cyanDark}, ${C.cyan})`, color: '#fff', border: 'none', boxShadow: `0 2px 8px ${C.cyan}40` },
+    secondary: { background: 'transparent', color: C.cyan, border: `1px solid ${C.cyan}` },
     ghost:     { background: 'transparent', color: C.textMid, border: `1px solid ${C.border}` },
     danger:    { background: 'transparent', color: C.red,  border: `1px solid ${C.red}44` },
-    gold:      { background: `linear-gradient(135deg, #8B6500, ${C.gold})`, color: C.bg, border: 'none' },
+    gold:      { background: `linear-gradient(135deg, #92400e, ${C.gold})`, color: '#fff', border: 'none' },
   };
   const v = variants[variant];
   return (
@@ -113,7 +114,7 @@ const Card = ({ children, style = {}, glow }) => (
   <div style={{
     background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14,
     padding: '20px',
-    boxShadow: glow ? `0 0 32px ${glow}15, inset 0 1px 0 ${glow}10` : `inset 0 1px 0 ${C.borderHi}20`,
+    boxShadow: glow ? `0 0 0 1px ${glow}20, 0 4px 16px ${glow}10` : '0 1px 4px rgba(0,0,0,0.05)',
     ...style,
   }}>
     {children}
@@ -185,9 +186,7 @@ const MonthlyBarChart = ({ monthly }) => {
   const barW = (W - padL) / 12 - 4;
 
   return (
-    <svg width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id="pvBarGrad" x1="0" y1="0" x2="0" y2="1">
+    <svg id="chart-monthly" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
           <stop offset="0%" stopColor={C.cyan} stopOpacity="0.9"/>
           <stop offset="100%" stopColor={C.cyanDark} stopOpacity="0.5"/>
         </linearGradient>
@@ -226,9 +225,7 @@ const SOCChart = ({ soc_array, capacity_kwh, dod }) => {
   const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
   const MONTH_DAYS = [0,31,59,90,120,151,181,212,243,273,304,334];
   return (
-    <svg width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id="socGrad" x1="0" y1="0" x2="0" y2="1">
+    <svg id="chart-soc" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
           <stop offset="0%" stopColor={C.blueBright} stopOpacity="0.35"/>
           <stop offset="100%" stopColor={C.blueBright} stopOpacity="0.02"/>
         </linearGradient>
@@ -269,7 +266,7 @@ const HourlyChart = ({ hourly, weekStart = 0 }) => {
   const DAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const startDay = Math.floor(start / 24) % 7;
   return (
-    <svg width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
+    <svg id="chart-hourly" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
       <defs>
         <linearGradient id="pvAreaGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={C.cyan} stopOpacity="0.18"/>
@@ -364,7 +361,7 @@ const STEPS = [
   { id: 'results',  label: 'Results',   icon: '📊' },
 ];
 
-const DesignTool = () => {
+const DesignTool = ({ onBack }) => {
   const [step, setStep] = useState(0);
   const [sim,  setSim]  = useState(null);
   const [fin,  setFin]  = useState(null);
@@ -397,7 +394,7 @@ const DesignTool = () => {
 
   /* ── Solar config ── */
   const [solar, setSolar] = useState({
-    method:     'pvgis',        // 'pvgis' | 'city' | 'manual'
+    method:     'pvgis',
     cityIndex:  0,
     avg_ghi:    5.5,
     avg_temp:   29,
@@ -405,6 +402,7 @@ const DesignTool = () => {
     fetching:   false,
     fetchError: '',
     fetched:    false,
+    dataSource: '',   // 'PVGIS' | 'NASA POWER' | 'Synthetic' | 'City Preset'
   });
 
   /* ── System config ── */
@@ -486,7 +484,7 @@ const DesignTool = () => {
     reader.readAsText(file);
   }, []);
 
-  /* ── Fetch PVGIS solar data ── */
+  /* ── Fetch solar data (PVGIS → NASA POWER → Synthetic cascade) ── */
   const fetchSolar = useCallback(async () => {
     const lat = parseFloat(solar.method === 'pvgis' ? project.lat : NIGERIA_CITIES_SOLAR[solar.cityIndex].lat);
     const lng = parseFloat(solar.method === 'pvgis' ? project.lng : NIGERIA_CITIES_SOLAR[solar.cityIndex].lng);
@@ -499,16 +497,20 @@ const DesignTool = () => {
     sol('fetching', true);
     sol('fetchError', '');
     sol('fetched', false);
+    sol('dataSource', '');
 
     try {
       const data = await fetchPVGISSolar(lat, lng);
+      // Detect which source was used from the first record's `source` tag
+      const source = data[0]?.source || 'PVGIS';
       sol('solarData', data);
-      const avgGHI = data.reduce((s, h) => s + h.ghi, 0) / (8760 * 1000); // convert to kWh/m²/day avg
+      sol('dataSource', source);
+      const avgGHI = data.reduce((s, h) => s + h.ghi, 0) / (8760 * 1000);
       sol('avg_ghi', parseFloat((avgGHI * 24).toFixed(2)));
       sol('fetched', true);
     } catch (err) {
-      sol('fetchError', `PVGIS unavailable: ${err.message}. Using synthetic data.`);
-      // Fall back to synthetic data
+      // Both PVGIS and NASA failed — fall back to embedded city-based synthetic
+      sol('fetchError', `Remote APIs unavailable. Using synthetic data based on nearest city profile.`);
       const cityData = NIGERIA_CITIES_SOLAR.find(c => {
         const dLat = Math.abs(c.lat - lat), dLng = Math.abs(c.lng - lng);
         return dLat < 3 && dLng < 3;
@@ -516,6 +518,7 @@ const DesignTool = () => {
       const data = generateSyntheticSolar(cityData.avg_ghi, cityData.avg_temp);
       sol('solarData', data);
       sol('avg_ghi', cityData.avg_ghi);
+      sol('dataSource', 'Synthetic');
       sol('fetched', true);
     } finally {
       sol('fetching', false);
@@ -692,78 +695,352 @@ const DesignTool = () => {
     a.download = `${project.name || 'minigrid'}-hourly-results.csv`; a.click();
   }, [sim, project.name]);
 
-  /* ─── RENDER ─────────────────────────────────────────────────────────── */
+  /* ── Export PDF Report ── */
+  const [pdfGenerating, setPdfGenerating] = useState(false);
 
-  
+  const exportPDF = useCallback(async () => {
+    if (!sim || !fin) return;
+    setPdfGenerating(true);
+
+    try {
+      // Dynamically load jsPDF and html2canvas from CDN
+      const loadScript = (src) => new Promise((res, rej) => {
+        if (document.querySelector(`script[src="${src}"]`)) return res();
+        const s = document.createElement('script');
+        s.src = src; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = 210, H = 297;
+      const margin = 16;
+      const contentW = W - margin * 2;
+      let y = margin;
+
+      const cycles = countBatteryCycles(sim.hourly.battery_soc, system.battery_capacity_kwh);
+      const lolp   = calcLOLP(sim.hourly.unserved_load);
+
+      // ── Helpers ──────────────────────────────────────────────────────────
+      const checkPage = (needed = 20) => {
+        if (y + needed > H - margin) { doc.addPage(); y = margin; return true; }
+        return false;
+      };
+
+      const drawHRule = (color = [226,234,242]) => {
+        doc.setDrawColor(...color);
+        doc.setLineWidth(0.3);
+        doc.line(margin, y, W - margin, y);
+        y += 4;
+      };
+
+      const sectionTitle = (text) => {
+        checkPage(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(0, 112, 204);
+        doc.text(text.toUpperCase(), margin, y);
+        y += 1;
+        doc.setDrawColor(0, 112, 204);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, margin + contentW, y);
+        y += 5;
+        doc.setTextColor(26, 43, 60);
+      };
+
+      const kpiRow = (items) => {
+        // items: [{label, value, color?}] — up to 4 per row
+        const colW = contentW / items.length;
+        items.forEach((item, i) => {
+          const x = margin + i * colW;
+          // Box
+          doc.setFillColor(244, 247, 251);
+          doc.setDrawColor(226, 234, 242);
+          doc.roundedRect(x, y, colW - 3, 16, 2, 2, 'FD');
+          // Value
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          if (item.color) doc.setTextColor(...item.color);
+          else doc.setTextColor(26, 43, 60);
+          doc.text(String(item.value), x + 3, y + 7);
+          // Label
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(74, 101, 128);
+          doc.text(item.label, x + 3, y + 13);
+        });
+        y += 20;
+      };
+
+      // Capture an SVG element as image and embed in PDF
+      const svgToImage = async (svgEl) => {
+        const svgData  = new XMLSerializer().serializeToString(svgEl);
+        const canvas   = document.createElement('canvas');
+        const bbox     = svgEl.getBoundingClientRect();
+        const scale    = 2;
+        canvas.width   = bbox.width  * scale;
+        canvas.height  = bbox.height * scale;
+        const ctx      = canvas.getContext('2d');
+        const img      = new Image();
+        const svgBlob  = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url      = URL.createObjectURL(svgBlob);
+        await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+        URL.revokeObjectURL(url);
+        return { dataUrl: canvas.toDataURL('image/png'), w: bbox.width, h: bbox.height };
+      };
+
+      // ── PAGE 1 — Cover ────────────────────────────────────────────────────
+      // Header banner
+      doc.setFillColor(0, 80, 153);
+      doc.rect(0, 0, W, 42, 'F');
+      doc.setFillColor(0, 112, 204);
+      doc.rect(0, 38, W, 4, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(255, 255, 255);
+      doc.text('Mini-Grid Pre-Feasibility Report', margin, 18);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(200, 220, 240);
+      doc.text(`${project.name || 'Unnamed Project'} · ${project.location || ''}`, margin, 28);
+      doc.text(`Prepared by REA Design Studio  ·  ${new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}`, margin, 35);
+
+      y = 52;
+      doc.setTextColor(26, 43, 60);
+
+      // Project info box
+      doc.setFillColor(234, 243, 252);
+      doc.setDrawColor(0, 112, 204);
+      doc.roundedRect(margin, y, contentW, 28, 3, 3, 'FD');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 80, 153);
+      doc.text('PROJECT INFORMATION', margin + 5, y + 7);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(26, 43, 60);
+      const info = [
+        `Location: ${project.location || '—'}  |  Coordinates: ${project.lat || '—'}, ${project.lng || '—'}`,
+        `Solar Data Source: ${solar.dataSource || 'Synthetic'}  |  Avg GHI: ${solar.avg_ghi} kWh/m²/day`,
+        `Report Date: ${new Date().toISOString().slice(0,10)}`,
+      ];
+      info.forEach((line, i) => doc.text(line, margin + 5, y + 13 + i * 5));
+      y += 34;
+
+      // ── System Configuration ─────────────────────────────────────────────
+      sectionTitle('System Configuration');
+      kpiRow([
+        { label: 'PV Capacity',     value: `${system.pv_capacity_kw} kWp`                           },
+        { label: 'Inverter',        value: `${system.inverter_capacity_kw} kVA`                     },
+        { label: 'Battery',         value: `${system.battery_capacity_kwh} kWh (${system.battery_type === 'lithium' ? 'Li-ion' : 'Lead-Acid'})` },
+        { label: 'Generator',       value: system.gen_enabled ? `${system.gen_capacity_kw} kW` : 'None' },
+      ]);
+      kpiRow([
+        { label: 'Derating Factor', value: system.pv_derating                                       },
+        { label: 'Battery DoD',     value: `${Math.round(system.battery_dod * 100)}%`               },
+        { label: 'Usable Storage',  value: `${fmt(system.battery_capacity_kwh * system.battery_dod, 1)} kWh` },
+        { label: 'Gen Min Load',    value: `${Math.round(system.gen_min_load_pct * 100)}%`          },
+      ]);
+
+      // ── Engineering Results ───────────────────────────────────────────────
+      sectionTitle('Engineering Performance');
+      kpiRow([
+        { label: 'Annual PV Generation',  value: `${fmtN(sim.annual.pv_kwh)} kWh`,                    color: [0,112,204]  },
+        { label: 'Annual Load Demand',    value: `${fmtN(sim.annual.load_kwh)} kWh`,                   color: [37,99,235]  },
+        { label: 'Generator Output',      value: `${fmtN(sim.annual.gen_kwh)} kWh`,                    color: [217,119,6]  },
+        { label: 'Unserved Load',         value: `${fmt(sim.annual.unmet_load_fraction, 2)}%`,          color: sim.annual.unmet_load_fraction > 2 ? [220,38,38] : [5,150,105] },
+      ]);
+      kpiRow([
+        { label: 'Renewable Fraction',    value: `${fmt(sim.annual.renewable_fraction, 1)}%`,           color: [0,112,204]  },
+        { label: 'PV Capacity Factor',    value: `${fmt(sim.annual.capacity_factor_pv, 1)}%`,           color: [37,99,235]  },
+        { label: 'Battery Cycles/Year',   value: `${cycles}`,                                           color: cycles > 365 ? [217,119,6] : [5,150,105] },
+        { label: 'Loss of Load Prob.',    value: `${fmt(lolp, 2)}%`,                                    color: lolp > 2 ? [220,38,38] : [5,150,105] },
+      ]);
+      kpiRow([
+        { label: 'Fuel Consumed',         value: `${fmtN(sim.annual.fuel_litres)} L/yr`                },
+        { label: 'Battery Throughput',    value: `${fmtN(sim.annual.batt_discharge_kwh)} kWh/yr`       },
+        { label: 'Peak Load',             value: `${fmt(sim.annual.peak_load_kw, 2)} kW`               },
+        { label: 'Avg Daily Load',        value: `${fmt(sim.annual.avg_load_kw * 24, 1)} kWh/day`      },
+      ]);
+
+      // ── Financial Results ─────────────────────────────────────────────────
+      sectionTitle('Financial Analysis');
+      kpiRow([
+        { label: 'Total CapEx',       value: `${project.currency}${fmtN(fin.capex.total)}`,            color: [0,80,153]   },
+        { label: 'LCOE',              value: `${project.currency}${fmt(fin.metrics.lcoe,2)}/kWh`,      color: fin.metrics.lcoe < finance.tariff_per_kwh ? [5,150,105] : [220,38,38] },
+        { label: 'Project NPV',       value: `${project.currency}${fmtN(fin.metrics.npv)}`,            color: fin.metrics.npv > 0 ? [5,150,105] : [220,38,38] },
+        { label: 'Simple Payback',    value: fin.metrics.simple_payback === Infinity ? 'N/A' : `${fmt(fin.metrics.simple_payback,1)} yr`, color: fin.metrics.simple_payback < 10 ? [5,150,105] : [217,119,6] },
+      ]);
+      kpiRow([
+        { label: 'Annual Revenue',    value: `${project.currency}${fmtN(fin.annual.revenue)}/yr`       },
+        { label: 'Annual O&M+Fuel',   value: `${project.currency}${fmtN(fin.annual.opex)}/yr`          },
+        { label: 'CO₂ Avoided',       value: `${fmtN(fin.metrics.co2_avoided_kg)} kg/yr`              },
+        { label: 'Beneficiaries',     value: `~${fmtN(fin.metrics.beneficiaries)} people`             },
+      ]);
+
+      // CapEx breakdown table
+      checkPage(50);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(74,101,128);
+      doc.text('CapEx Breakdown', margin, y); y += 5;
+      const capexItems = [
+        ['Solar PV Array',    fin.capex.pv],
+        ['Battery Storage',   fin.capex.battery],
+        ['Generator',         fin.capex.generator],
+        ['Inverter/Control',  fin.capex.inverter],
+        ['Balance of System', fin.capex.bos],
+        ['Installation',      fin.capex.install],
+      ].filter(([,v]) => v > 0);
+      capexItems.forEach(([label, value]) => {
+        const pct = fin.capex.total > 0 ? (value / fin.capex.total) * 100 : 0;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(26,43,60);
+        doc.text(label, margin, y + 3);
+        doc.text(`${project.currency}${fmtN(value)}`, margin + 90, y + 3);
+        doc.text(`${pct.toFixed(1)}%`, margin + 120, y + 3);
+        // bar
+        doc.setFillColor(226,234,242);
+        doc.rect(margin + 135, y, 50, 5, 'F');
+        doc.setFillColor(0,112,204);
+        doc.rect(margin + 135, y, pct * 0.5, 5, 'F');
+        y += 8;
+      });
+      // Total
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(0,80,153);
+      doc.text(`TOTAL CapEx: ${project.currency}${fmtN(fin.capex.total)}`, margin, y + 4);
+      y += 10;
+
+      // ── PAGE 2 — Charts ───────────────────────────────────────────────────
+      doc.addPage();
+      y = margin;
+
+      // Re-draw header strip
+      doc.setFillColor(0,80,153);
+      doc.rect(0, 0, W, 14, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(255,255,255);
+      doc.text(`${project.name || 'Mini-Grid'} · Charts & Visualisations`, margin, 9);
+      y = 22;
+      doc.setTextColor(26,43,60);
+
+      // Capture and embed the 4 SVG charts from the results page
+      const chartIds = [
+        { selector: '#chart-monthly',  label: 'Monthly Energy Balance',       height: 52 },
+        { selector: '#chart-hourly',   label: 'Hourly Power Balance (Week 1)',  height: 52 },
+        { selector: '#chart-soc',      label: 'Battery SOC — Annual Profile',   height: 40 },
+      ];
+
+      for (const { selector, label, height } of chartIds) {
+        const el = document.querySelector(selector);
+        if (!el) continue;
+        checkPage(height + 12);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(74,101,128);
+        doc.text(label.toUpperCase(), margin, y);
+        y += 4;
+        try {
+          const { dataUrl, w, h: svgH } = await svgToImage(el);
+          const aspect = svgH / w;
+          const imgW   = contentW;
+          const imgH   = Math.min(imgW * aspect, height);
+          doc.addImage(dataUrl, 'PNG', margin, y, imgW, imgH);
+          y += imgH + 6;
+        } catch (e) {
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(8);
+          doc.setTextColor(148,163,184);
+          doc.text('[Chart capture unavailable]', margin, y + 4);
+          y += 10;
+        }
+        drawHRule();
+      }
+
+      // ── Recommendation ────────────────────────────────────────────────────
+      checkPage(30);
+      const recColor = sim.annual.unmet_load_fraction > 5 ? [220,38,38] : sim.annual.renewable_fraction < 50 ? [217,119,6] : [5,150,105];
+      const recText  = sim.annual.unmet_load_fraction > 5 ? 'System Undersized' : sim.annual.renewable_fraction < 50 ? 'Viable — Low Renewable Fraction' : 'System Design Viable';
+      doc.setFillColor(...recColor.map(v => Math.min(255, v + 200)));
+      doc.setDrawColor(...recColor);
+      doc.roundedRect(margin, y, contentW, 20, 3, 3, 'FD');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...recColor);
+      doc.text(`Engineering Assessment: ${recText}`, margin + 5, y + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(26,43,60);
+      doc.text(`RF: ${fmt(sim.annual.renewable_fraction,1)}%  |  Unmet: ${fmt(sim.annual.unmet_load_fraction,2)}%  |  LCOE: ${project.currency}${fmt(fin.metrics.lcoe,2)}/kWh  |  NPV: ${project.currency}${fmtN(fin.metrics.npv)}`, margin + 5, y + 15);
+      y += 26;
+
+      // ── Disclaimer ────────────────────────────────────────────────────────
+      checkPage(16);
+      doc.setFillColor(249,250,251);
+      doc.setDrawColor(226,234,242);
+      doc.roundedRect(margin, y, contentW, 14, 2, 2, 'FD');
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7);
+      doc.setTextColor(148,163,184);
+      doc.text('Pre-feasibility disclaimer: Results are indicative only (±15–20% accuracy). Not suitable for procurement or investment decisions', margin + 3, y + 5);
+      doc.text('without a detailed engineering study. Solar data based on typical meteorological year. Generated by REA Design Studio.', margin + 3, y + 10);
+
+      // ── Footer on all pages ───────────────────────────────────────────────
+      const totalPages = doc.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setFillColor(248,250,252);
+        doc.rect(0, H - 10, W, 10, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(148,163,184);
+        doc.text(`REA Mini-Grid Design Studio  ·  ${project.name || 'Report'}  ·  Page ${p} of ${totalPages}`, margin, H - 3);
+        doc.text(new Date().toLocaleDateString('en-GB'), W - margin, H - 3, { align: 'right' });
+      }
+
+      doc.save(`${(project.name || 'minigrid').replace(/\s+/g,'-')}-prefeasibility-report.pdf`);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('PDF generation failed: ' + err.message);
+    } finally {
+      setPdfGenerating(false);
+    }
+  }, [sim, fin, project, system, solar, finance, load]);
+
+  /* ─── RENDER ─────────────────────────────────────────────────────────── */
+  });
+
   return (
     <>
       <link href={FONT_URL} rel="stylesheet" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
         * { box-sizing: border-box; }
-        body { margin: 0; background: ${C.bg}; }
+        body { margin: 0; background: #F4F7FB; }
 
-        /* Noise texture overlay */
-        body::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          z-index: 999;
-          pointer-events: none;
-          opacity: 0.04;
-          mix-blend-mode: overlay;
-          background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-        }
-
-        /* Atmospheric glow */
-        body::after {
-          content: '';
-          position: fixed;
-          top: -30%;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80vw;
-          height: 60vh;
-          background: radial-gradient(ellipse at center, ${C.cyan}08 0%, transparent 70%);
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: ${C.surface}; }
-        ::-webkit-scrollbar-thumb { background: ${C.borderHi}; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-        input::placeholder { color: ${C.textDim}; }
-        select option { background: ${C.panel}; color: ${C.text}; }
+        input::placeholder { color: #CBD5E1; }
+        select option { background: #fff; color: #1A2B3C; }
 
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
-        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
         .step-content { animation: fadeIn 0.3s cubic-bezier(0.22,1,0.36,1); }
         .sim-log-entry { animation: fadeIn 0.15s ease; }
-
-        /* Cyan glow text for active elements */
-        .glow-text {
-          text-shadow: 0 0 20px ${C.cyan}80;
-        }
-
-        /* Scan line effect on sim running */
-        .scanline-effect::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(transparent 50%, ${C.cyan}03 50%);
-          background-size: 100% 4px;
-          pointer-events: none;
-          border-radius: inherit;
-        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', fontFamily: "'DM Sans', sans-serif", position: 'relative', zIndex: 1 }}>
@@ -773,30 +1050,39 @@ const DesignTool = () => {
           padding: '0 28px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           position: 'sticky', top: 0, zIndex: 100,
-          background: 'rgba(2,8,16,0.85)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           borderBottom: `1px solid ${C.border}`,
           height: 60,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
         }}>
           {/* Left — wordmark + back link */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 10, color: C.textMid, letterSpacing: 1, fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ opacity: 0.5 }}>←</span> Operations Map
-              </span>
-            </a>
+            <button onClick={onBack} style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              display: 'flex', alignItems: 'center', gap: 5,
+              fontSize: 11, color: C.textMid, fontFamily: "'DM Sans', sans-serif",
+            }}>
+              <span style={{ opacity: 0.5 }}>←</span> Home
+            </button>
             <div style={{ width: 1, height: 18, background: C.border }} />
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{
-                fontSize: 17, fontWeight: 500, color: C.text,
-                fontFamily: "'Playfair Display', serif",
-                fontStyle: 'italic', letterSpacing: -0.3, lineHeight: 1,
-              }}>
-                Design Studio.
-              </div>
-              <div style={{ fontSize: 9, color: C.textDim, letterSpacing: 2, textTransform: 'uppercase', fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
-                REA · Pre-Feasibility Simulation
+                width: 26, height: 26, borderRadius: 7,
+                background: `linear-gradient(135deg, ${C.cyanDark}, ${C.cyan})`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13,
+              }}>⚡</div>
+              <div>
+                <div style={{
+                  fontSize: 15, fontWeight: 600, color: C.text,
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: 'italic', letterSpacing: -0.3, lineHeight: 1,
+                }}>GridForge</div>
+                <div style={{ fontSize: 9, color: C.textDim, letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
+                  Design Studio · REA
+                </div>
               </div>
             </div>
           </div>
@@ -818,8 +1104,13 @@ const DesignTool = () => {
           {/* Right — actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {sim && (
-              <Btn variant="secondary" onClick={exportCSV} icon="↓" style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
-                Export CSV
+              <Btn variant="ghost" onClick={exportCSV} icon="↓" style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
+                CSV
+              </Btn>
+            )}
+            {sim && (
+              <Btn variant="primary" onClick={exportPDF} disabled={pdfGenerating} icon={pdfGenerating ? '⏳' : '📄'} style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
+                {pdfGenerating ? 'Generating...' : 'Export PDF'}
               </Btn>
             )}
             <div style={{
@@ -837,9 +1128,7 @@ const DesignTool = () => {
           borderBottom: `1px solid ${C.border}`,
           padding: '0 28px',
           display: 'flex', gap: 0, overflowX: 'auto',
-          position: 'relative',
         }}>
-          {/* Glow line at bottom of active step */}
           {STEPS.map((s, i) => {
             const active   = i === step;
             const done     = i < step;
@@ -855,10 +1144,9 @@ const DesignTool = () => {
                 fontFamily: "'DM Sans', sans-serif",
                 display: 'flex', alignItems: 'center', gap: 6,
                 whiteSpace: 'nowrap', transition: 'all 0.2s',
-                boxShadow: active ? `0 2px 16px ${C.cyan}30` : 'none',
                 letterSpacing: 0.3,
               }}>
-                <span style={{ fontSize: done ? 11 : 12, filter: active ? `drop-shadow(0 0 4px ${C.cyan})` : 'none' }}>{done ? '✓' : s.icon}</span>
+                <span style={{ fontSize: done ? 11 : 12 }}>{done ? '✓' : s.icon}</span>
                 {s.label}
               </button>
             );
@@ -1046,9 +1334,9 @@ const DesignTool = () => {
 
               <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                 {[
-                  { id: 'pvgis', label: '🌍 PVGIS API (Recommended)' },
-                  { id: 'city',  label: '📍 Nigerian City Preset'     },
-                  { id: 'manual',label: '✏️ Enter GHI Manually'        },
+                  { id: 'pvgis', label: '🌍 Fetch from API' },
+                  { id: 'city',  label: '📍 Nigerian City Preset' },
+                  { id: 'manual',label: '✏️ Enter GHI Manually'   },
                 ].map(m => (
                   <button key={m.id} onClick={() => sol('method', m.id)} style={{
                     padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
@@ -1062,19 +1350,34 @@ const DesignTool = () => {
 
               {solar.method === 'pvgis' && (
                 <Card>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 16, lineHeight: 1.7 }}>
-                    PVGIS (EU JRC) provides free Typical Meteorological Year data with actual hourly irradiance and temperature. Using coordinates from Step 1: <strong style={{ color: C.text }}>{project.lat || '—'}, {project.lng || '—'}</strong>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 12, lineHeight: 1.7 }}>
+                    Automatically tries <strong style={{ color: C.text }}>PVGIS (EU JRC)</strong> first, then falls back to <strong style={{ color: C.text }}>NASA POWER</strong>, then local synthetic data. Coordinates from Step 1: <strong style={{ color: C.cyan }}>{project.lat || '—'}, {project.lng || '—'}</strong>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+                    {['PVGIS (EU JRC)', 'NASA POWER', 'Synthetic fallback'].map((src, i) => (
+                      <div key={src} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.textDim }}>
+                        {i > 0 && <span style={{ color: C.textDim }}>→</span>}
+                        <span style={{
+                          padding: '2px 8px', borderRadius: 4,
+                          border: `1px solid ${solar.dataSource === src.split(' ')[0] ? C.cyan : C.border}`,
+                          color: solar.dataSource === src.split(' ')[0] ? C.cyan : C.textDim,
+                          background: solar.dataSource === src.split(' ')[0] ? `${C.cyan}15` : 'transparent',
+                        }}>{src}</span>
+                      </div>
+                    ))}
                   </div>
                   <Btn onClick={fetchSolar} disabled={solar.fetching || !project.lat || !project.lng} icon={solar.fetching ? '⏳' : '🌍'}>
-                    {solar.fetching ? 'Fetching from PVGIS...' : 'Fetch Solar Data from PVGIS'}
+                    {solar.fetching ? 'Fetching solar data...' : 'Fetch Solar Resource Data'}
                   </Btn>
                   {solar.fetchError && (
-                    <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.gold}10`, border: `1px solid ${C.gold}30`, borderRadius: 8, fontSize: 11, color: C.gold }}>{solar.fetchError}</div>
+                    <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.gold}10`, border: `1px solid ${C.gold}30`, borderRadius: 8, fontSize: 11, color: C.gold }}>⚠️ {solar.fetchError}</div>
                   )}
                   {solar.fetched && (
-                    <div style={{ marginTop: 16, padding: '14px', background: `${C.cyan}10`, border: `1px solid ${C.cyan}30`, borderRadius: 8 }}>
-                      <div style={{ fontSize: 12, color: C.cyan, fontWeight: 700, marginBottom: 4 }}>✅ Solar data ready</div>
-                      <div style={{ fontSize: 11, color: C.textMid }}>8760 hourly values loaded · Avg GHI: <strong style={{ color: C.text }}>{solar.avg_ghi} kWh/m²/day</strong></div>
+                    <div style={{ marginTop: 16, padding: '14px', background: `${C.cyan}08`, border: `1px solid ${C.cyan}30`, borderRadius: 8 }}>
+                      <div style={{ fontSize: 12, color: C.cyan, fontWeight: 700, marginBottom: 4 }}>
+                        ✅ Solar data ready · Source: <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{solar.dataSource || 'PVGIS'}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: C.textMid }}>8,760 hourly values · Avg GHI: <strong style={{ color: C.text }}>{solar.avg_ghi} kWh/m²/day</strong></div>
                     </div>
                   )}
                 </Card>
@@ -1418,6 +1721,9 @@ const DesignTool = () => {
                 <SectionHead icon="📊" title="Simulation Results" sub={`${project.name || 'Mini-Grid'} · ${project.location || ''}`} />
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Btn variant="secondary" onClick={exportCSV} icon="↓" style={{ fontSize: 11 }}>Hourly CSV</Btn>
+                  <Btn variant="primary" onClick={exportPDF} disabled={pdfGenerating} icon={pdfGenerating ? '⏳' : '📄'} style={{ fontSize: 11 }}>
+                    {pdfGenerating ? 'Generating PDF...' : 'Export Report PDF'}
+                  </Btn>
                   <Btn variant="ghost" onClick={() => setStep(5)} icon="↺" style={{ fontSize: 11 }}>Re-run</Btn>
                 </div>
               </div>
