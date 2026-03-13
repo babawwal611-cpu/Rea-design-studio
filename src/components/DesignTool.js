@@ -1040,7 +1040,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
     } finally {
       setPdfGenerating(false);
     }
-  }, [sim, fin, project, system, solar, finance, load]);
+  }, [sim, fin, project, system, solar, finance]);
 
   /* ─── RENDER ─────────────────────────────────────────────────────────── */
 
