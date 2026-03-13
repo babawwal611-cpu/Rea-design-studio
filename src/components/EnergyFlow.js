@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const C = {
   bg: '#F4F7FB', surface: '#FFFFFF', border: '#E2EAF2', borderHi: '#C5D5E8',
@@ -22,17 +22,7 @@ const NODES = {
 };
 
 /* ─── Flow path definitions ─────────────────────────────────────────────── */
-// Each flow: from node center → to node center, with a colour and label
-const FLOWS = {
-  pv_to_inv:   { from: 'pv',   to: 'inv',  label: 'PV → Inverter',       color: '#F59E0B' },
-  inv_to_load: { from: 'inv',  to: 'load', label: 'Inverter → Load',      color: '#0070CC' },
-  inv_to_batt: { from: 'inv',  to: 'bus',  label: 'PV → Battery',         color: '#059669' },
-  batt_to_bus: { from: 'batt', to: 'bus',  label: 'Battery Discharge',    color: '#059669' },
-  bus_to_load: { from: 'bus',  to: 'load', label: 'Battery → Load',       color: '#059669' },
-  gen_to_load: { from: 'gen',  to: 'load', label: 'Generator → Load',     color: '#D97706' },
-  gen_to_batt: { from: 'gen',  to: 'bus',  label: 'Gen Cycle Charge',     color: '#D97706' },
-  curtail:     { from: 'inv',  to: 'batt', label: 'Curtailment',          color: '#DC2626' },
-};
+// Flows are rendered directly via FlowArrow components below
 
 /* Compute midpoint + bezier control points for a flow path */
 function flowPath(fromKey, toKey) {
