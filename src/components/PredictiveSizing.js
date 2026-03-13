@@ -225,8 +225,6 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
     }
   };
 
-  const maxCost = Math.max(result.costs.pv, result.costs.battery, result.costs.inverter, result.costs.generator, 1);
-
   return (
     <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
       <style>{`
