@@ -123,7 +123,7 @@ const Step = ({ n, title, desc }) => (
 );
 
 /* ─── Main LandingPage component ──────────────────────────────────────────── */
-export default function LandingPage({ onEnter }) {
+export default function LandingPage({ onEnter, onOpenSizing }) {
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
@@ -196,11 +196,11 @@ export default function LandingPage({ onEnter }) {
           <span style={{
             fontSize: 18, fontWeight: 700, color: C.navy,
             fontFamily: SERIF, fontStyle: 'italic', letterSpacing: -0.5,
-          }}>GridForge</span>
+          }}>MIRIDA</span>
           <span style={{
             fontSize: 9, fontFamily: MONO, color: C.textDim,
             padding: '2px 6px', background: `${C.blue}15`,
-            borderRadius: 4, letterSpacing: 1,
+            borderRadius: 4, letterSpacing: 1, color: C.blue,
           }}>BETA</span>
         </div>
 
@@ -208,6 +208,12 @@ export default function LandingPage({ onEnter }) {
           <a href="#features" className="nav-link">Features</a>
           <a href="#how-it-works" className="nav-link">How it works</a>
           <a href="#about" className="nav-link">About REA</a>
+          <button onClick={onOpenSizing} className="cta-btn" style={{
+            padding: '9px 22px', borderRadius: 8,
+            background: 'transparent',
+            color: C.blue, border: `1px solid ${C.blue}50`, cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, fontFamily: FONT,
+          }}>⚡ Quick Size</button>
           <button onClick={onEnter} className="cta-btn" style={{
             padding: '9px 22px', borderRadius: 8,
             background: `linear-gradient(135deg, ${C.blue}, ${C.blueLight})`,
@@ -287,14 +293,14 @@ export default function LandingPage({ onEnter }) {
             }}>
               Start a simulation →
             </button>
-            <button style={{
+            <button onClick={onOpenSizing} className="cta-btn" style={{
               padding: '14px 28px', borderRadius: 10,
-              background: C.white, color: C.textDark,
-              border: `1px solid ${C.borderMid}`, cursor: 'pointer',
-              fontSize: 15, fontWeight: 500, fontFamily: FONT,
+              background: C.white, color: C.blue,
+              border: `1px solid ${C.blue}40`, cursor: 'pointer',
+              fontSize: 15, fontWeight: 600, fontFamily: FONT,
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             }}>
-              View sample report
+              ⚡ Quick Size
             </button>
           </div>
 
@@ -302,8 +308,9 @@ export default function LandingPage({ onEnter }) {
           <div className="hero-fade-4" style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Chip icon="☀️" label="8,760-hour simulation" />
             <Chip icon="🛰️" label="NASA POWER solar data" />
+            <Chip icon="⚡" label="Predictive sizing" />
+            <Chip icon="🗺️" label="Site map view" />
             <Chip icon="📄" label="PDF report export" />
-            <Chip icon="🔋" label="Battery cycle analysis" />
             <Chip icon="💹" label="NPV / LCOE / IRR" />
           </div>
         </div>
@@ -331,7 +338,7 @@ export default function LandingPage({ onEnter }) {
                 background: C.bg, border: `1px solid ${C.border}`,
                 display: 'flex', alignItems: 'center', paddingLeft: 10,
               }}>
-                <span style={{ fontSize: 10, color: C.textDim, fontFamily: MONO }}>gridforge.rea.gov.ng</span>
+                <span style={{ fontSize: 10, color: C.textDim, fontFamily: MONO }}>mirida.rea.gov.ng</span>
               </div>
             </div>
             {/* Mini UI mockup */}
@@ -486,7 +493,7 @@ export default function LandingPage({ onEnter }) {
               letterSpacing: -0.6, marginTop: 16, marginBottom: 16, lineHeight: 1.15,
             }}>From site to simulation<br />in under 10 minutes</h2>
             <p style={{ fontSize: 15, color: C.textMid, lineHeight: 1.7, marginBottom: 40 }}>
-              GridForge guides engineers and planners through a structured pre-feasibility workflow. No spreadsheets, no coding — just a clean, guided process.
+              MIRIDA guides engineers and planners through a structured pre-feasibility workflow. No spreadsheets, no coding — just a clean, guided process.
             </p>
             <button onClick={onEnter} style={{
               padding: '13px 28px', borderRadius: 10,
@@ -548,7 +555,7 @@ export default function LandingPage({ onEnter }) {
                 letterSpacing: -0.6, marginTop: 16, marginBottom: 20, lineHeight: 1.15,
               }}>Supporting Nigeria's rural electrification mission</h2>
               <p style={{ fontSize: 15, color: C.textMid, lineHeight: 1.7, marginBottom: 20 }}>
-                GridForge is built to accelerate the REA's mandate of achieving universal electricity access. The tool implements methodologies aligned with the Nigerian Electrification Project (NEP) and SE4ALL frameworks.
+                MIRIDA is built to accelerate the REA's mandate of achieving universal electricity access. The tool implements methodologies aligned with the Nigerian Electrification Project (NEP) and SE4ALL frameworks.
               </p>
               <p style={{ fontSize: 15, color: C.textMid, lineHeight: 1.7, marginBottom: 32 }}>
                 All cost benchmarks, load templates, and financial defaults are calibrated to Nigerian market conditions as of 2024/2025. Solar resource data is sourced from peer-reviewed satellite datasets.
@@ -613,7 +620,7 @@ export default function LandingPage({ onEnter }) {
               background: `linear-gradient(135deg, ${C.blue}, ${C.blueLight})`,
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
             }}>⚡</div>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: SERIF, fontStyle: 'italic' }}>GridForge</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: SERIF, fontStyle: 'italic' }}>MIRIDA</span>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: MONO }}>v1.0</span>
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: FONT, textAlign: 'center' }}>
