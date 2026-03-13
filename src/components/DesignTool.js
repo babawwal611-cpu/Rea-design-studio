@@ -190,6 +190,7 @@ const MonthlyBarChart = ({ monthly }) => {
   return (
     <svg id="chart-monthly" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
       <defs> {/* ← ADD THIS MISSING OPENING TAG */}
+        <linearGradient id="pvBarGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={C.cyan} stopOpacity="0.9"/>
           <stop offset="100%" stopColor={C.cyanDark} stopOpacity="0.5"/>
         </linearGradient>
