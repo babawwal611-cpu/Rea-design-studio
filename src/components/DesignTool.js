@@ -230,6 +230,8 @@ const SOCChart = ({ soc_array, capacity_kwh, dod }) => {
   const MONTH_DAYS = [0,31,59,90,120,151,181,212,243,273,304,334];
   return (
     <svg id="chart-soc" width="100%" viewBox={`0 0 ${W} ${H + padB}`} style={{ display: 'block' }}>
+        <defs> {/* ← ADD THIS MISSING OPENING TAG */}
+        <linearGradient id="socGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={C.blueBright} stopOpacity="0.35"/>
           <stop offset="100%" stopColor={C.blueBright} stopOpacity="0.02"/>
         </linearGradient>
