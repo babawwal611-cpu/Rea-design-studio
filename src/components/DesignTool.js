@@ -10,7 +10,6 @@ import {
   generateSyntheticSolar,
   NIGERIA_DEFAULTS,
   NIGERIA_CITIES_SOLAR,
-  LOAD_SHAPES,             // ← new
 } from '../utils/simulateSystem';
 import SiteMap from './SiteMap';
 import EnergyFlowSimulator from './EnergyFlow';
@@ -137,24 +136,6 @@ const SectionHead = ({ icon, title, sub }) => (
 );
 
 /* Mini sparkline using SVG */
-const Sparkline = ({ data, color = C.cyan, height = 40 }) => {
-  if (!data || data.length === 0) return null;
-  const w = 200, h = height;
-  const max = Math.max(...data, 0.001);
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * h}`).join(' ');
-  return (
-    <svg width={w} height={h} style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
-          <stop offset="100%" stopColor={color} stopOpacity="0"/>
-        </linearGradient>
-      </defs>
-      <polygon points={`0,${h} ${pts} ${w},${h}`} fill="url(#sparkGrad)" />
-      <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5} />
-    </svg>
-  );
-};
 
 /* Radial gauge for renewable fraction */
 const Gauge = ({ value, max = 100, color = C.cyan, label, size = 120 }) => {
