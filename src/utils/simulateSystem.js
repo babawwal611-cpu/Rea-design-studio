@@ -583,95 +583,329 @@ export function parseLoadCSV(csvText) {
  * Unchanged from original — generates synthetic 8760-hour load profiles
  * from daily average kWh using Nigerian load shape templates.
  */
-export function generateLoadProfile(dailyAvgKWh, profileType = 'rural_village') {
-  const SHAPES = {
-    rural_village: [
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH: Drop-in replacements for generateLoadProfile and NIGERIA_DEFAULTS
+// in src/utils/simulateSystem.js
+//
+// Changes vs original:
+//  [A] 8 load shape library (was 5): added urban_residential, agricultural_pumping,
+//      telecom_constant, vaccine_clinic
+//  [B] Community diversity factor applied when profileType starts with 'community_'
+//  [C] generateLoadProfile now accepts optional loadGrowthRate + targetYear for
+//      load growth modelling
+//  [D] NIGERIA_DEFAULTS restructured into community_templates + facility_templates
+//      (4 village sizes, all facility types, matched to correct shape keys)
+//  [E] Exported LOAD_SHAPES so UI can render preview curves without calling
+//      generateLoadProfile
+// ─────────────────────────────────────────────────────────────────────────────
+
+/* ─── [E] Load Shape Library (exported for UI preview) ──────────────────── */
+export const LOAD_SHAPES = {
+  // ── Community shapes ──
+  rural_village: {
+    label: 'Rural Evening Peak',
+    desc: 'Residential evening-dominated demand with morning cook load',
+    values: [
       0.15,0.10,0.08,0.07,0.08,0.12,0.30,0.55,
       0.50,0.45,0.42,0.40,0.45,0.42,0.40,0.45,
       0.60,0.80,1.00,0.95,0.85,0.70,0.45,0.25,
     ],
-    school: [
+  },
+  urban_residential: {
+    label: 'Urban Residential',
+    desc: 'Higher baseline with midday AC load and strong evening peak',
+    values: [
+      0.30,0.25,0.22,0.20,0.22,0.28,0.45,0.65,
+      0.72,0.70,0.75,0.80,0.85,0.82,0.80,0.82,
+      0.88,0.95,1.00,0.98,0.92,0.80,0.60,0.40,
+    ],
+  },
+  // ── Facility shapes ──
+  school: {
+    label: 'School Daytime',
+    desc: 'Sharp daytime peak, minimal nights and weekends',
+    values: [
       0.05,0.05,0.05,0.05,0.05,0.05,0.10,0.20,
       0.60,0.80,0.90,0.95,1.00,0.95,0.90,0.80,
       0.60,0.30,0.15,0.10,0.08,0.07,0.06,0.05,
     ],
-    health_clinic: [
+  },
+  health_clinic: {
+    label: 'Health Clinic 24hr',
+    desc: 'Relatively flat 24-hour demand with business-hours peak',
+    values: [
       0.40,0.35,0.35,0.35,0.35,0.40,0.55,0.75,
       0.90,1.00,0.95,0.90,0.85,0.85,0.90,0.95,
       0.90,0.80,0.70,0.65,0.60,0.55,0.50,0.45,
     ],
-    market: [
+  },
+  vaccine_clinic: {
+    label: 'Health Clinic (Vaccine Refrigeration)',
+    desc: 'Flat 24hr profile — continuous refrigeration load dominates',
+    values: [
+      0.75,0.75,0.75,0.75,0.75,0.78,0.85,0.95,
+      1.00,0.98,0.95,0.92,0.90,0.92,0.95,0.98,
+      1.00,0.95,0.90,0.85,0.82,0.80,0.78,0.76,
+    ],
+  },
+  market: {
+    label: 'Market Midday Peak',
+    desc: 'Strong daytime trading hours, quiet nights',
+    values: [
       0.10,0.08,0.07,0.07,0.08,0.12,0.25,0.55,
       0.85,1.00,0.98,0.95,0.92,0.95,0.98,1.00,
       0.90,0.70,0.45,0.30,0.20,0.15,0.12,0.10,
     ],
-    borehole: [
+  },
+  borehole: {
+    label: 'Agricultural Pumping / Borehole',
+    desc: 'Concentrated daytime pumping, zero at night',
+    values: [
       0.00,0.00,0.00,0.00,0.00,0.20,0.80,1.00,
       1.00,0.90,0.80,0.70,0.60,0.70,0.80,0.90,
       0.80,0.60,0.30,0.10,0.00,0.00,0.00,0.00,
     ],
-  };
+  },
+  agricultural_pumping: {
+    label: 'Agricultural Pumping (Irrigation)',
+    desc: 'Seasonal daytime pumping with higher wet-season usage',
+    values: [
+      0.00,0.00,0.00,0.00,0.00,0.10,0.60,1.00,
+      1.00,1.00,0.95,0.90,0.85,0.90,0.95,1.00,
+      0.90,0.70,0.40,0.10,0.00,0.00,0.00,0.00,
+    ],
+  },
+  telecom_constant: {
+    label: 'Telecom Tower',
+    desc: 'Near-constant 24hr baseload with slight day variation',
+    values: [
+      0.90,0.90,0.90,0.90,0.90,0.92,0.95,0.98,
+      1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,
+      1.00,0.98,0.96,0.95,0.93,0.92,0.91,0.90,
+    ],
+  },
+};
 
-  const shape    = SHAPES[profileType] || SHAPES.rural_village;
+/* ─── [B] Community Diversity Factors ───────────────────────────────────────
+ * Diversity factor (DF) reduces coincident peak demand vs. simple sum of
+ * individual loads. Based on Nigerian/Sub-Saharan Africa mini-grid data.
+ * Reference: REA Mini-Grid Development Guidelines (2023), ESMAP diversity data.
+ *
+ * DF = peak_community / (n_households × peak_household)
+ * Applied as a multiplier to the peak load (and thus all hourly values).
+ *
+ * Households:  50    100   250   500
+ * DF:          0.65  0.55  0.45  0.38
+ */
+const DIVERSITY_FACTORS = {
+  community_50hh:  { hh: 50,  kwh_per_hh: 2.5,  df: 0.65 },
+  community_100hh: { hh: 100, kwh_per_hh: 2.5,  df: 0.55 },
+  community_250hh: { hh: 250, kwh_per_hh: 2.5,  df: 0.45 },
+  community_500hh: { hh: 500, kwh_per_hh: 2.5,  df: 0.38 },
+};
+
+/* ─── [A][B][C] Updated generateLoadProfile ─────────────────────────────────
+ *
+ * @param {number}  dailyAvgKWh       — average daily energy demand (kWh/day)
+ * @param {string}  profileType       — key from LOAD_SHAPES, or 'community_NNhh'
+ * @param {object}  options
+ *   @param {number}  loadGrowthRate  — annual demand growth rate (e.g. 0.05 = 5%)
+ *   @param {number}  targetYear      — project year to scale to (1 = base, 5 = +5 yrs)
+ *
+ * Returns Float32Array of 8760 hourly kW values.
+ */
+export function generateLoadProfile(dailyAvgKWh, profileType = 'rural_village', options = {}) {
+  const { loadGrowthRate = 0, targetYear = 1 } = options;
+
+  // [C] Load growth scaling: compound growth to target year
+  const growthFactor = Math.pow(1 + loadGrowthRate, targetYear - 1);
+  const scaledDailyKWh = dailyAvgKWh * growthFactor;
+
+  // [B] Community diversity factor — override shape and apply DF to peak
+  let diversityMultiplier = 1.0;
+  let resolvedProfileType = profileType;
+
+  if (profileType in DIVERSITY_FACTORS) {
+    const { df } = DIVERSITY_FACTORS[profileType];
+    diversityMultiplier = df;
+    resolvedProfileType = 'rural_village'; // community loads use village shape
+  }
+
+  // [A] Resolve shape
+  const shapeObj = LOAD_SHAPES[resolvedProfileType] || LOAD_SHAPES.rural_village;
+  const shape    = shapeObj.values;
   const shapeSum = shape.reduce((a, b) => a + b, 0);
-  const peakKW   = dailyAvgKWh / shapeSum;
 
-  const SEASONAL = [1.05,1.08,1.10,1.08,1.05,0.95,0.90,0.90,0.92,0.95,1.00,1.05];
-  const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+  // Peak power from daily energy and shape, then apply diversity factor
+  const peakKW = (scaledDailyKWh / shapeSum) * diversityMultiplier;
+
+  // Seasonal variation (Nigeria dry/wet pattern)
+  const SEASONAL     = [1.05,1.08,1.10,1.08,1.05,0.95,0.90,0.90,0.92,0.95,1.00,1.05];
+  const DAYS_PER_MON = [31,28,31,30,31,30,31,31,30,31,30,31];
 
   const profile = new Float32Array(8760);
   let h = 0;
   for (let m = 0; m < 12; m++) {
-    const seasonFactor = SEASONAL[m];
-    for (let d = 0; d < DAYS_PER_MONTH[m]; d++) {
+    const sf = SEASONAL[m];
+    for (let d = 0; d < DAYS_PER_MON[m]; d++) {
+      const noise = 0.95 + Math.random() * 0.10;
       for (let hr = 0; hr < 24; hr++) {
-        const noise = 0.95 + Math.random() * 0.10;
-        profile[h++] = Math.max(0, peakKW * shape[hr] * seasonFactor * noise);
+        profile[h++] = Math.max(0, peakKW * shape[hr] * sf * noise);
       }
     }
   }
   return profile;
 }
 
-/* ─── Nigerian Defaults ───────────────────────────────────────────────────
- * Equipment costs and financial parameters for Nigerian mini-grid projects.
- * Unchanged from original.
+/* ─── [D] Restructured NIGERIA_DEFAULTS ─────────────────────────────────────
+ * community_templates: village-scale loads (Mode 2)
+ * facility_templates:  building/institution loads (Mode 3)
+ * Each template includes a shape key that maps to LOAD_SHAPES.
  */
 export const NIGERIA_DEFAULTS = {
   equipment: {
-    pv_cost_per_kw:       400000,   // ₦/kWp
-    battery_li_per_kwh:  1000000,   // ₦/kWh (Li-ion)
-    battery_la_per_kwh:   400000,   // ₦/kWh (Lead-acid)
-    gen_cost_per_kw:      320000,   // ₦/kW
-    inverter_cost_per_kw: 200000,   // ₦/kW
-    bos_pct:              0.17,     // BOS = 17% of PV cost
-    installation_pct:     0.12,     // Installation = 12% of hardware
+    pv_cost_per_kw:       400000,
+    battery_li_per_kwh:  1000000,
+    battery_la_per_kwh:   400000,
+    gen_cost_per_kw:      320000,
+    inverter_cost_per_kw: 200000,
+    bos_pct:              0.17,
+    installation_pct:     0.12,
   },
   financial: {
-    om_pct_annual:          0.015,  // 1.5% of CapEx per year
-    fuel_price_per_litre:   1200,   // ₦/litre diesel
-    discount_rate:          0.12,   // 12%
+    om_pct_annual:          0.015,
+    fuel_price_per_litre:   1200,
+    discount_rate:          0.12,
     project_lifetime_years: 20,
-    tariff_per_kwh:         150,    // ₦/kWh (typical REA project tariff)
+    tariff_per_kwh:         150,
     currency: '₦',
   },
+
+  // Mode 2 — Community Templates (village scale, diversity factors applied)
+  community_templates: [
+    {
+      id: 'community_50hh',
+      label: 'Village (50 Households)',
+      icon: '🏘️',
+      daily_kwh: 125,   // 50 × 2.5 kWh/HH × DF 0.65 effective demand
+      shape_key: 'community_50hh',
+      hh_count: 50,
+      note: 'Diversity factor 0.65 applied',
+    },
+    {
+      id: 'community_100hh',
+      label: 'Village (100 Households)',
+      icon: '🏘️',
+      daily_kwh: 137,   // 100 × 2.5 × DF 0.55
+      shape_key: 'community_100hh',
+      hh_count: 100,
+      note: 'Diversity factor 0.55 applied',
+    },
+    {
+      id: 'community_250hh',
+      label: 'Village (250 Households)',
+      icon: '🏙️',
+      daily_kwh: 281,   // 250 × 2.5 × DF 0.45
+      shape_key: 'community_250hh',
+      hh_count: 250,
+      note: 'Diversity factor 0.45 applied',
+    },
+    {
+      id: 'community_500hh',
+      label: 'Village (500 Households)',
+      icon: '🏙️',
+      daily_kwh: 475,   // 500 × 2.5 × DF 0.38
+      shape_key: 'community_500hh',
+      hh_count: 500,
+      note: 'Diversity factor 0.38 applied',
+    },
+  ],
+
+  // Mode 3 — Facility Templates (single-building scale)
+  facility_templates: [
+    {
+      id: 'rural_household_basic',
+      label: 'Rural Household (Basic)',
+      icon: '🏠',
+      daily_kwh: 1.2,
+      shape_key: 'rural_village',
+    },
+    {
+      id: 'rural_household_improved',
+      label: 'Rural Household (Improved)',
+      icon: '🏡',
+      daily_kwh: 3.5,
+      shape_key: 'rural_village',
+    },
+    {
+      id: 'primary_school',
+      label: 'Primary School',
+      icon: '🏫',
+      daily_kwh: 8.0,
+      shape_key: 'school',
+    },
+    {
+      id: 'health_clinic_basic',
+      label: 'Health Clinic (Basic)',
+      icon: '🏥',
+      daily_kwh: 12.0,
+      shape_key: 'health_clinic',
+    },
+    {
+      id: 'health_clinic_ref',
+      label: 'Health Clinic (Vaccine Refrigeration)',
+      icon: '❄️',
+      daily_kwh: 25.0,
+      shape_key: 'vaccine_clinic',
+    },
+    {
+      id: 'rural_market',
+      label: 'Rural Market',
+      icon: '🏪',
+      daily_kwh: 15.0,
+      shape_key: 'market',
+    },
+    {
+      id: 'borehole',
+      label: 'Borehole / Water Pump',
+      icon: '💧',
+      daily_kwh: 6.0,
+      shape_key: 'borehole',
+    },
+    {
+      id: 'irrigation_pump',
+      label: 'Irrigation Pumping Station',
+      icon: '🌾',
+      daily_kwh: 40.0,
+      shape_key: 'agricultural_pumping',
+    },
+    {
+      id: 'telecom_tower',
+      label: 'Telecom Tower',
+      icon: '📡',
+      daily_kwh: 14.4,  // 600 W × 24 h
+      shape_key: 'telecom_constant',
+    },
+  ],
+
+  // Legacy flat list kept for backward compatibility with existing code that reads load_templates
   load_templates: [
-    { id: 'rural_household_basic',    label: 'Rural Household (Basic)',            daily_kwh: 1.2,   icon: '🏠' },
-    { id: 'rural_household_improved', label: 'Rural Household (Improved)',         daily_kwh: 3.5,   icon: '🏡' },
-    { id: 'primary_school',           label: 'Primary School',                     daily_kwh: 8.0,   icon: '🏫' },
-    { id: 'health_clinic_basic',      label: 'Health Clinic (Basic)',              daily_kwh: 12.0,  icon: '🏥' },
-    { id: 'health_clinic_ref',        label: 'Health Clinic (w/ Refrigeration)',   daily_kwh: 25.0,  icon: '❄️' },
-    { id: 'rural_market',             label: 'Rural Market',                       daily_kwh: 15.0,  icon: '🏪' },
-    { id: 'borehole',                 label: 'Borehole / Water Pump',              daily_kwh: 6.0,   icon: '💧' },
-    { id: 'village_100hh',            label: 'Village (100 Households)',           daily_kwh: 120.0, icon: '🏘️' },
-    { id: 'village_250hh',            label: 'Village (250 Households)',           daily_kwh: 300.0, icon: '🏙️' },
+    { id: 'community_50hh',         label: 'Village (50 Households)',               daily_kwh: 125,   icon: '🏘️', shape_key: 'community_50hh'        },
+    { id: 'community_100hh',        label: 'Village (100 Households)',              daily_kwh: 137,   icon: '🏘️', shape_key: 'community_100hh'       },
+    { id: 'community_250hh',        label: 'Village (250 Households)',              daily_kwh: 281,   icon: '🏙️', shape_key: 'community_250hh'       },
+    { id: 'community_500hh',        label: 'Village (500 Households)',              daily_kwh: 475,   icon: '🏙️', shape_key: 'community_500hh'       },
+    { id: 'primary_school',         label: 'Primary School',                        daily_kwh: 8.0,   icon: '🏫', shape_key: 'school'                 },
+    { id: 'health_clinic_basic',    label: 'Health Clinic (Basic)',                 daily_kwh: 12.0,  icon: '🏥', shape_key: 'health_clinic'          },
+    { id: 'health_clinic_ref',      label: 'Health Clinic (Vaccine Refrigeration)', daily_kwh: 25.0,  icon: '❄️', shape_key: 'vaccine_clinic'         },
+    { id: 'rural_market',           label: 'Rural Market',                          daily_kwh: 15.0,  icon: '🏪', shape_key: 'market'                 },
+    { id: 'borehole',               label: 'Borehole / Water Pump',                daily_kwh: 6.0,   icon: '💧', shape_key: 'borehole'               },
+    { id: 'irrigation_pump',        label: 'Irrigation Pumping Station',            daily_kwh: 40.0,  icon: '🌾', shape_key: 'agricultural_pumping'   },
+    { id: 'telecom_tower',          label: 'Telecom Tower',                         daily_kwh: 14.4,  icon: '📡', shape_key: 'telecom_constant'       },
   ],
 };
 
-/* ─── Nigerian Cities Solar Data ─────────────────────────────────────────
- * Embedded fallback TMY data for 12 major Nigerian cities.
- * Unchanged from original.
- */
+
+
 export const NIGERIA_CITIES_SOLAR = [
   { name: 'Abuja (FCT)',   lat: 9.06,  lng: 7.49,  avg_ghi: 5.53, avg_temp: 28 },
   { name: 'Kano',          lat: 12.00, lng: 8.52,  avg_ghi: 6.14, avg_temp: 30 },
