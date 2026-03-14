@@ -128,7 +128,6 @@ const Card = ({ children, style = {}, glow }) => (
 const SectionHead = ({ icon, title, sub }) => (
   <div style={{ marginBottom: 4 }}>
       <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.text, fontFamily: "'DM Sans', sans-serif", letterSpacing: -0.5 }}>{title}</h2>
-    </div>
     {sub && <p style={{ margin: 0, fontSize: 12, color: C.textMid, fontFamily: "'DM Sans', sans-serif", paddingLeft: 30 }}>{sub}</p>}
   </div>
 );
