@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import LoadProfileStep from './LoadProfileStep';
+
 import {
   simulateSystem,
   calculateFinancials,
@@ -8,6 +10,7 @@ import {
   generateSyntheticSolar,
   NIGERIA_DEFAULTS,
   NIGERIA_CITIES_SOLAR,
+  LOAD_SHAPES,             // ← new
 } from '../utils/simulateSystem';
 import SiteMap from './SiteMap';
 import EnergyFlowSimulator from './EnergyFlow';
@@ -389,13 +392,16 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
   /* ── Load config ── */
   const [load, setLoad] = useState({
-    method:       'template',   // 'template' | 'csv' | 'manual'
-    template:     'village_100hh',
-    daily_kwh:    120,
-    profile_type: 'rural_village',
-    csvData:      null,
-    csvName:      '',
-    customProfile: null,
+  method:          'community',          // 'community' | 'facility' | 'csv' | 'custom'
+  template:        'community_100hh',
+  daily_kwh:       137,
+  shape_key:       'community_100hh',    // maps to LOAD_SHAPES key (or community_ key)
+  profile_type:    'community_100hh',    // kept for backward compat
+  csvData:         null,
+  csvName:         '',
+  customProfile:   null,
+  customSegments:  { morning: 0.4, daytime: 0.3, evening: 1.0, night: 0.2 },
+  load_growth_rate: 0,                   // annual demand growth (0 = no growth)
   });
 
   /* ── Solar config ── */
@@ -583,12 +589,42 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
       if (load.method === 'csv' && load.csvData) {
         loadProfile = load.csvData;
         log(`Loaded CSV: ${load.csvName} (${loadProfile.length} hours)`);
+ 
+      } else if (load.method === 'custom' && load.customSegments) {
+        // Custom demand builder — generate profile from segment sliders
+        const SEGMENT_HOURS = {
+          night: [0,1,2,3,4,5], morning: [6,7,8,9],
+          daytime: [10,11,12,13,14,15,16], evening: [17,18,19,20,21,22,23],
+        };
+        const shape24 = new Array(24).fill(0);
+        Object.entries(SEGMENT_HOURS).forEach(([seg, hours]) => {
+          hours.forEach(h => { shape24[h] = load.customSegments[seg]; });
+        });
+        const growthOpts = { loadGrowthRate: parseFloat(load.load_growth_rate) || 0, targetYear: 1 };
+        loadProfile = generateLoadProfile(parseFloat(load.daily_kwh), 'rural_village', growthOpts);
+        // Re-scale to match custom shape
+        const stdShape = [0.15,0.10,0.08,0.07,0.08,0.12,0.30,0.55,0.50,0.45,0.42,0.40,0.45,0.42,0.40,0.45,0.60,0.80,1.00,0.95,0.85,0.70,0.45,0.25];
+        const stdSum = stdShape.reduce((a,b) => a+b,0);
+        const customSum = shape24.reduce((a,b) => a+b,0);
+        for (let h = 0; h < 8760; h++) {
+          const hr = h % 24;
+          loadProfile[h] = loadProfile[h] * (shape24[hr] / (stdShape[hr] || 0.01)) * (stdSum / (customSum || 1));
+        }
+        log(`Generated custom demand builder profile: ${load.daily_kwh} kWh/day`);
+ 
       } else {
+        // Community or facility template
         const tpl = NIGERIA_DEFAULTS.load_templates.find(t => t.id === load.template);
-        const dailyKWh = load.method === 'manual' ? parseFloat(load.daily_kwh) : (tpl?.daily_kwh || 120);
-        const profileType = load.method === 'manual' ? load.profile_type : (load.template.includes('school') ? 'school' : load.template.includes('clinic') ? 'health_clinic' : load.template.includes('borehole') ? 'borehole' : load.template.includes('market') ? 'market' : 'rural_village');
-        loadProfile = generateLoadProfile(dailyKWh, profileType);
-        log(`Generated ${profileType} load profile: ${dailyKWh} kWh/day average`);
+        const dailyKWh = parseFloat(load.daily_kwh) || (tpl?.daily_kwh || 120);
+        // Use shape_key from load state (set by LoadProfileStep when template is selected)
+        const shapeKey = load.shape_key || tpl?.shape_key || 'rural_village';
+        const growthOpts = {
+          loadGrowthRate: parseFloat(load.load_growth_rate) || 0,
+          targetYear: 1,
+        };
+        loadProfile = generateLoadProfile(dailyKWh, shapeKey, growthOpts);
+        const growthNote = growthOpts.loadGrowthRate > 0 ? ` (${(growthOpts.loadGrowthRate * 100).toFixed(1)}%/yr growth)` : '';
+        log(`Generated ${shapeKey} load profile: ${dailyKWh} kWh/day${growthNote}`);
       }
 
       log('Loading solar resource data...');
@@ -689,7 +725,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
   const canProceed = useCallback(() => {
     switch(step) {
       case 0: return project.name.trim().length > 0;
-      case 1: return load.method === 'csv' ? !!load.csvData : true;
+      case 1: return load.method === 'csv' ? !!load.csvData : load.daily_kwh > 0;
       case 2: return solar.fetched || solar.method === 'manual';
       case 3: return system.pv_capacity_kw > 0 && system.battery_capacity_kwh > 0;
       case 4: return true;
@@ -1260,115 +1296,13 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
           {/* ════════════════════════════════ STEP 1: LOAD ═════════════════════════════════ */}
           {step === 1 && (
-            <div className="step-content">
-              <SectionHead icon="⚡" title="Load Profile" sub="Define the community's hourly electricity demand for a full year." />
-
-              {/* Method selector */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-                {[
-                  { id: 'template', label: '📋 Use Template' },
-                  { id: 'csv',      label: '📂 Upload CSV'   },
-                  { id: 'manual',   label: '✏️ Manual Input'  },
-                ].map(m => (
-                  <button key={m.id} onClick={() => ld('method', m.id)} style={{
-                    padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
-                    background: load.method === m.id ? C.cyanDim : 'transparent',
-                    border: `1px solid ${load.method === m.id ? C.cyan : C.border}`,
-                    color: load.method === m.id ? C.cyan : C.textMid,
-                    fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                  }}>{m.label}</button>
-                ))}
-              </div>
-
-              {load.method === 'template' && (
-                <div>
-                  <Card>
-                    <Label>Select Community Type</Label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 10 }}>
-                      {NIGERIA_DEFAULTS.load_templates.map(t => (
-                        <button key={t.id} onClick={() => { ld('template', t.id); ld('daily_kwh', t.daily_kwh); }} style={{
-                          padding: '14px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'left',
-                          background: load.template === t.id ? C.cyanDim : C.surface,
-                          border: `1px solid ${load.template === t.id ? C.cyan : C.border}`,
-                          transition: 'all 0.15s',
-                        }}>
-                          <div style={{ fontSize: 20, marginBottom: 6 }}>{t.icon}</div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: load.template === t.id ? C.cyan : C.text, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.3 }}>{t.label}</div>
-                          <div style={{ fontSize: 10, color: C.textDim, marginTop: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{t.daily_kwh} kWh/day</div>
-                        </button>
-                      ))}
-                    </div>
-                  </Card>
-                  {load.template && (
-                    <Card style={{ marginTop: 16 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontSize: 12, color: C.textMid, marginBottom: 2 }}>Selected daily demand</div>
-                          <div style={{ fontSize: 28, fontWeight: 800, color: C.cyan, fontFamily: "'IBM Plex Mono', monospace" }}>
-                            {load.daily_kwh} <span style={{ fontSize: 14, color: C.textMid }}>kWh/day</span>
-                          </div>
-                          <div style={{ fontSize: 11, color: C.textDim }}>≈ {fmt(load.daily_kwh * 365)} kWh/year · Peak ≈ {fmt(load.daily_kwh / 18, 1)} kW</div>
-                        </div>
-                        <Sparkline data={Array.from({length:24}, (_,h) => {
-                          const shapes = [0.15,0.10,0.08,0.07,0.08,0.12,0.30,0.55,0.50,0.45,0.42,0.40,0.45,0.42,0.40,0.45,0.60,0.80,1.00,0.95,0.85,0.70,0.45,0.25];
-                          return shapes[h] * (load.daily_kwh / 18);
-                        })} color={C.cyan} height={60} />
-                      </div>
-                    </Card>
-                  )}
-                </div>
-              )}
-
-              {load.method === 'csv' && (
-                <Card>
-                  <div style={{ border: `2px dashed ${C.borderHi}`, borderRadius: 10, padding: '32px', textAlign: 'center', cursor: 'pointer' }}
-                    onClick={() => fileInputRef.current?.click()}>
-                    <input ref={fileInputRef} type="file" accept=".csv,.txt" onChange={handleCSV} style={{ display: 'none' }} />
-                    {load.csvData ? (
-                      <>
-                        <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: C.cyan }}>{load.csvName}</div>
-                        <div style={{ fontSize: 11, color: C.textMid, marginTop: 4 }}>8760 hours loaded · Daily avg: {fmt(load.daily_kwh, 1)} kWh</div>
-                      </>
-                    ) : (
-                      <>
-                        <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: C.textMid }}>Click to upload hourly load CSV</div>
-                        <div style={{ fontSize: 11, color: C.textDim, marginTop: 6 }}>Must contain 8760 rows of hourly load in kW<br/>Comma, semicolon, or tab delimited</div>
-                      </>
-                    )}
-                  </div>
-                  {errors.csv && <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.red}15`, border: `1px solid ${C.red}40`, borderRadius: 8, fontSize: 12, color: C.red }}>{errors.csv}</div>}
-                  <div style={{ marginTop: 16, padding: '12px 14px', background: C.surface, borderRadius: 8, fontSize: 11, color: C.textDim, lineHeight: 1.7 }}>
-                    <strong style={{ color: C.textMid }}>CSV Format:</strong> One numeric value per row (kW demand each hour, Hour 1 = Jan 1 00:00). Optional header row is auto-skipped. Multiple columns: last numeric column is used.
-                  </div>
-                </Card>
-              )}
-
-              {load.method === 'manual' && (
-                <Card>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div>
-                      <Label hint="average daily demand">Daily Energy (kWh/day)</Label>
-                      <Input value={load.daily_kwh} onChange={v => ld('daily_kwh', v)} min={0.1} step={0.5} unit="kWh/d" />
-                    </div>
-                    <div>
-                      <Label>Load Shape Profile</Label>
-                      <Select value={load.profile_type} onChange={v => ld('profile_type', v)} options={[
-                        { value: 'rural_village', label: 'Rural Village (evening peak)' },
-                        { value: 'school',        label: 'School (daytime)' },
-                        { value: 'health_clinic', label: 'Health Clinic (flat 24hr)' },
-                        { value: 'market',        label: 'Market (daytime peak)' },
-                        { value: 'borehole',      label: 'Borehole (daytime pump)' },
-                      ]} />
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 16, padding: '10px 14px', background: `${C.gold}10`, border: `1px solid ${C.gold}30`, borderRadius: 8, fontSize: 11, color: C.gold }}>
-                    ⚠️ Manual input generates a synthetic hourly profile using Nigerian load shape templates with ±5% random variation.
-                  </div>
-                </Card>
-              )}
-            </div>
+            <LoadProfileStep
+              load={load}
+              ld={ld}
+              fileInputRef={fileInputRef}
+              handleCSV={handleCSV}
+              errors={errors}
+            />
           )}
 
           {/* ════════════════════════════════ STEP 2: SOLAR ════════════════════════════════ */}
@@ -1698,7 +1632,8 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 <div style={{ fontSize: 12, fontWeight: 700, color: C.textMid, marginBottom: 14 }}>Pre-Simulation Checklist</div>
                 {[
                   { ok: project.name.trim().length > 0,               label: `Project: ${project.name || 'Not set'}` },
-                  { ok: load.method !== 'csv' || !!load.csvData,       label: `Load: ${load.method === 'csv' ? (load.csvData ? load.csvName : 'CSV not uploaded') : `${load.daily_kwh} kWh/day`}` },
+                  { ok: load.method !== 'csv' ? load.daily_kwh > 0 : !!load.csvData,
+                    label: `Load: ${load.method === 'csv' ? (load.csvData ? load.csvName : 'CSV not uploaded') : `${fmt(load.daily_kwh, 1)} kWh/day (${load.method})`}` },
                   { ok: solar.fetched || solar.method === 'manual',    label: `Solar: ${solar.fetched ? `${solar.avg_ghi} kWh/m²/day` : 'Not fetched'}` },
                   { ok: system.pv_capacity_kw > 0,                     label: `PV: ${system.pv_capacity_kw} kWp` },
                   { ok: system.battery_capacity_kwh > 0,               label: `Battery: ${system.battery_capacity_kwh} kWh` },
