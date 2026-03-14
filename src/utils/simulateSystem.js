@@ -578,3 +578,229 @@ export function parseLoadCSV(csvText) {
     throw new Error(`CSV must contain at least 8760 hourly values. Got ${values.length}.`);
   return new Float32Array(values.slice(0, 8760));
 }
+
+/* ─── Load Profile Generator ─────────────────────────────────────────────
+ * Unchanged from original — generates synthetic 8760-hour load profiles
+ * from daily average kWh using Nigerian load shape templates.
+ */
+export function generateLoadProfile(dailyAvgKWh, profileType = 'rural_village') {
+  const SHAPES = {
+    rural_village: [
+      0.15,0.10,0.08,0.07,0.08,0.12,0.30,0.55,
+      0.50,0.45,0.42,0.40,0.45,0.42,0.40,0.45,
+      0.60,0.80,1.00,0.95,0.85,0.70,0.45,0.25,
+    ],
+    school: [
+      0.05,0.05,0.05,0.05,0.05,0.05,0.10,0.20,
+      0.60,0.80,0.90,0.95,1.00,0.95,0.90,0.80,
+      0.60,0.30,0.15,0.10,0.08,0.07,0.06,0.05,
+    ],
+    health_clinic: [
+      0.40,0.35,0.35,0.35,0.35,0.40,0.55,0.75,
+      0.90,1.00,0.95,0.90,0.85,0.85,0.90,0.95,
+      0.90,0.80,0.70,0.65,0.60,0.55,0.50,0.45,
+    ],
+    market: [
+      0.10,0.08,0.07,0.07,0.08,0.12,0.25,0.55,
+      0.85,1.00,0.98,0.95,0.92,0.95,0.98,1.00,
+      0.90,0.70,0.45,0.30,0.20,0.15,0.12,0.10,
+    ],
+    borehole: [
+      0.00,0.00,0.00,0.00,0.00,0.20,0.80,1.00,
+      1.00,0.90,0.80,0.70,0.60,0.70,0.80,0.90,
+      0.80,0.60,0.30,0.10,0.00,0.00,0.00,0.00,
+    ],
+  };
+
+  const shape    = SHAPES[profileType] || SHAPES.rural_village;
+  const shapeSum = shape.reduce((a, b) => a + b, 0);
+  const peakKW   = dailyAvgKWh / shapeSum;
+
+  const SEASONAL = [1.05,1.08,1.10,1.08,1.05,0.95,0.90,0.90,0.92,0.95,1.00,1.05];
+  const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+  const profile = new Float32Array(8760);
+  let h = 0;
+  for (let m = 0; m < 12; m++) {
+    const seasonFactor = SEASONAL[m];
+    for (let d = 0; d < DAYS_PER_MONTH[m]; d++) {
+      for (let hr = 0; hr < 24; hr++) {
+        const noise = 0.95 + Math.random() * 0.10;
+        profile[h++] = Math.max(0, peakKW * shape[hr] * seasonFactor * noise);
+      }
+    }
+  }
+  return profile;
+}
+
+/* ─── Nigerian Defaults ───────────────────────────────────────────────────
+ * Equipment costs and financial parameters for Nigerian mini-grid projects.
+ * Unchanged from original.
+ */
+export const NIGERIA_DEFAULTS = {
+  equipment: {
+    pv_cost_per_kw:       400000,   // ₦/kWp
+    battery_li_per_kwh:  1000000,   // ₦/kWh (Li-ion)
+    battery_la_per_kwh:   400000,   // ₦/kWh (Lead-acid)
+    gen_cost_per_kw:      320000,   // ₦/kW
+    inverter_cost_per_kw: 200000,   // ₦/kW
+    bos_pct:              0.17,     // BOS = 17% of PV cost
+    installation_pct:     0.12,     // Installation = 12% of hardware
+  },
+  financial: {
+    om_pct_annual:          0.015,  // 1.5% of CapEx per year
+    fuel_price_per_litre:   1200,   // ₦/litre diesel
+    discount_rate:          0.12,   // 12%
+    project_lifetime_years: 20,
+    tariff_per_kwh:         150,    // ₦/kWh (typical REA project tariff)
+    currency: '₦',
+  },
+  load_templates: [
+    { id: 'rural_household_basic',    label: 'Rural Household (Basic)',            daily_kwh: 1.2,   icon: '🏠' },
+    { id: 'rural_household_improved', label: 'Rural Household (Improved)',         daily_kwh: 3.5,   icon: '🏡' },
+    { id: 'primary_school',           label: 'Primary School',                     daily_kwh: 8.0,   icon: '🏫' },
+    { id: 'health_clinic_basic',      label: 'Health Clinic (Basic)',              daily_kwh: 12.0,  icon: '🏥' },
+    { id: 'health_clinic_ref',        label: 'Health Clinic (w/ Refrigeration)',   daily_kwh: 25.0,  icon: '❄️' },
+    { id: 'rural_market',             label: 'Rural Market',                       daily_kwh: 15.0,  icon: '🏪' },
+    { id: 'borehole',                 label: 'Borehole / Water Pump',              daily_kwh: 6.0,   icon: '💧' },
+    { id: 'village_100hh',            label: 'Village (100 Households)',           daily_kwh: 120.0, icon: '🏘️' },
+    { id: 'village_250hh',            label: 'Village (250 Households)',           daily_kwh: 300.0, icon: '🏙️' },
+  ],
+};
+
+/* ─── Nigerian Cities Solar Data ─────────────────────────────────────────
+ * Embedded fallback TMY data for 12 major Nigerian cities.
+ * Unchanged from original.
+ */
+export const NIGERIA_CITIES_SOLAR = [
+  { name: 'Abuja (FCT)',   lat: 9.06,  lng: 7.49,  avg_ghi: 5.53, avg_temp: 28 },
+  { name: 'Kano',          lat: 12.00, lng: 8.52,  avg_ghi: 6.14, avg_temp: 30 },
+  { name: 'Lagos',         lat: 6.58,  lng: 3.38,  avg_ghi: 4.28, avg_temp: 27 },
+  { name: 'Katsina',       lat: 12.98, lng: 7.61,  avg_ghi: 6.28, avg_temp: 31 },
+  { name: 'Sokoto',        lat: 13.07, lng: 5.25,  avg_ghi: 6.33, avg_temp: 33 },
+  { name: 'Maiduguri',     lat: 11.80, lng: 13.15, avg_ghi: 6.38, avg_temp: 31 },
+  { name: 'Jigawa',        lat: 12.18, lng: 9.55,  avg_ghi: 6.21, avg_temp: 30 },
+  { name: 'Kaduna',        lat: 10.52, lng: 7.72,  avg_ghi: 5.88, avg_temp: 29 },
+  { name: 'Jos (Plateau)', lat: 9.22,  lng: 8.89,  avg_ghi: 5.62, avg_temp: 23 },
+  { name: 'Port Harcourt', lat: 4.85,  lng: 7.01,  avg_ghi: 4.26, avg_temp: 28 },
+  { name: 'Enugu',         lat: 6.46,  lng: 7.49,  avg_ghi: 4.55, avg_temp: 27 },
+  { name: 'Ibadan (Oyo)',  lat: 8.16,  lng: 3.93,  avg_ghi: 4.82, avg_temp: 27 },
+];
+
+/* ─── Synthetic Solar Generator ─────────────────────────────────────────
+ * Generates 8760-hour TMY from daily average GHI.
+ * Unchanged from original.
+ */
+export function generateSyntheticSolar(avg_ghi_kwh_m2_day, avg_temp_c = 28) {
+  const HOURLY_SHAPE = [
+    0,0,0,0,0,0.02,0.08,0.18,0.32,0.52,0.72,0.88,
+    1.00,0.92,0.78,0.58,0.35,0.15,0.04,0,0,0,0,0,
+  ];
+  const shapeSum = HOURLY_SHAPE.reduce((a, b) => a + b, 0);
+  const daily_wh = avg_ghi_kwh_m2_day * 1000;
+  const peakGHI  = daily_wh / shapeSum;
+
+  const SEASONAL_GHI  = [1.10,1.12,1.08,1.00,0.90,0.80,0.75,0.78,0.85,0.95,1.05,1.10];
+  const SEASONAL_TEMP = [0,2,4,4,2,0,-1,-1,0,0,-1,-1];
+  const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+  const result = [];
+  for (let m = 0; m < 12; m++) {
+    const ghiFactor  = SEASONAL_GHI[m];
+    const tempOffset = SEASONAL_TEMP[m];
+    for (let d = 0; d < DAYS_PER_MONTH[m]; d++) {
+      const cloudFactor = Math.random() > 0.3
+        ? (0.85 + Math.random() * 0.15)
+        : (0.3  + Math.random() * 0.4);
+      for (let hr = 0; hr < 24; hr++) {
+        const ghi  = Math.max(0, peakGHI * HOURLY_SHAPE[hr] * ghiFactor * cloudFactor);
+        const temp = avg_temp_c + tempOffset + (hr >= 12 && hr <= 16 ? 3 : hr >= 22 || hr <= 5 ? -3 : 0);
+        result.push({ ghi: Math.round(ghi), temp: parseFloat(temp.toFixed(1)) });
+      }
+    }
+  }
+  return result;
+}
+
+/* ─── PVGIS / NASA POWER Solar Fetcher ───────────────────────────────────
+ * Fetches real TMY data from PVGIS (EU JRC) then falls back to NASA POWER.
+ * Unchanged from original.
+ */
+export async function fetchPVGISSolar(lat, lng) {
+  const errors = [];
+
+  // Source 1: PVGIS EU JRC
+  try {
+    const url = `https://re.jrc.ec.europa.eu/api/v5_2/tmy?lat=${lat}&lon=${lng}&outputformat=json&browser=1`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (res.ok) {
+      const data   = await res.json();
+      const hourly = data.outputs?.tmy_hourly;
+      if (hourly && hourly.length >= 8760) {
+        return hourly.map(h => ({
+          ghi:    h.G_Gh  || 0,
+          temp:   h.T2m   || 25,
+          dhi:    h.G_Dh  || 0,
+          ws:     h.WS10m || 0,
+          source: 'PVGIS',
+        }));
+      }
+    }
+    errors.push(`PVGIS: HTTP ${res.status}`);
+  } catch (e) {
+    errors.push(`PVGIS: ${e.message}`);
+  }
+
+  // Source 2: NASA POWER API
+  try {
+    const params = new URLSearchParams({
+      parameters: 'ALLSKY_SFC_SW_DWN,T2M',
+      community:  'RE',
+      longitude:  String(lng),
+      latitude:   String(lat),
+      format:     'JSON',
+    });
+    const url = `https://power.larc.nasa.gov/api/climatology/point?${params}`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const data         = await res.json();
+      const ghi_monthly  = data.properties?.parameter?.ALLSKY_SFC_SW_DWN;
+      const temp_monthly = data.properties?.parameter?.T2M;
+
+      if (ghi_monthly && temp_monthly) {
+        const MONTH_KEYS     = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        const ghiByMonth     = MONTH_KEYS.map(k => ghi_monthly[k]  || 5.0);
+        const tempByMonth    = MONTH_KEYS.map(k => temp_monthly[k] || 28.0);
+        const HOURLY_SHAPE   = [
+          0,0,0,0,0,0.02,0.08,0.18,0.32,0.52,0.72,0.88,
+          1.00,0.92,0.78,0.58,0.35,0.15,0.04,0,0,0,0,0,
+        ];
+        const shapeSum       = HOURLY_SHAPE.reduce((a, b) => a + b, 0);
+        const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+        const result = [];
+        for (let m = 0; m < 12; m++) {
+          const daily_wh = ghiByMonth[m] * 1000;
+          const peakGHI  = daily_wh / shapeSum;
+          const avgTemp  = tempByMonth[m];
+          for (let d = 0; d < DAYS_PER_MONTH[m]; d++) {
+            const cloudFactor = Math.random() > 0.3
+              ? (0.85 + Math.random() * 0.15)
+              : (0.3  + Math.random() * 0.40);
+            for (let hr = 0; hr < 24; hr++) {
+              const ghi  = Math.max(0, peakGHI * HOURLY_SHAPE[hr] * cloudFactor);
+              const temp = avgTemp + (hr >= 12 && hr <= 16 ? 3 : hr >= 22 || hr <= 5 ? -3 : 0);
+              result.push({ ghi: Math.round(ghi), temp: parseFloat(temp.toFixed(1)), source: 'NASA POWER' });
+            }
+          }
+        }
+        return result;
+      }
+    }
+    errors.push(`NASA POWER: HTTP ${res.status}`);
+  } catch (e) {
+    errors.push(`NASA POWER: ${e.message}`);
+  }
+
+  throw new Error(`Solar APIs unavailable (${errors.join(' | ')}). Using synthetic data.`);
+}
