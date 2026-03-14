@@ -36,7 +36,7 @@ const C = {
   white:     '#FFFFFF',
 };
 
-const FONT_URL = "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap";
+const FONT_URL = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap";
 
 /* ─── Utility ────────────────────────────────────────────────────────────── */
 const fmt  = (n, dec = 0) => typeof n === 'number' && isFinite(n) ? n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—';
@@ -58,7 +58,7 @@ const Input = ({ value, onChange, type = 'number', min, max, step, placeholder, 
       style={{
         width: '100%', padding: '10px 14px', paddingRight: unit ? 48 : 14,
         background: '#F8FAFC', border: `1px solid ${C.border}`, borderRadius: 8,
-        color: C.text, fontSize: 13, fontFamily: "'IBM Plex Mono', monospace",
+        color: C.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif",
         outline: 'none', transition: 'border 0.2s, box-shadow 0.2s',
         ...style,
       }}
@@ -126,10 +126,8 @@ const Card = ({ children, style = {}, glow }) => (
 );
 
 const SectionHead = ({ icon, title, sub }) => (
-  <div style={{ marginBottom: 24 }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-      <span style={{ fontSize: 20 }}>{icon}</span>
-      <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.text, fontFamily: "'Playfair Display', serif", letterSpacing: -0.5, fontStyle: 'italic' }}>{title}</h2>
+  <div style={{ marginBottom: 4 }}>
+      <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.text, fontFamily: "'DM Sans', sans-serif", letterSpacing: -0.5 }}>{title}</h2>
     </div>
     {sub && <p style={{ margin: 0, fontSize: 12, color: C.textMid, fontFamily: "'DM Sans', sans-serif", paddingLeft: 30 }}>{sub}</p>}
   </div>
@@ -342,13 +340,13 @@ const calcLOLP = (unserved_array) => {
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 const STEPS = [
-  { id: 'project',  label: 'Project',   icon: '📋' },
-  { id: 'load',     label: 'Load',      icon: '⚡' },
-  { id: 'solar',    label: 'Solar',     icon: '☀️' },
-  { id: 'system',   label: 'System',    icon: '⚙️' },
-  { id: 'finance',  label: 'Finance',   icon: '₦'  },
-  { id: 'simulate', label: 'Simulate',  icon: '▶'  },
-  { id: 'results',  label: 'Results',   icon: '📊' },
+  { id: 'project',  label: 'Project',   },
+  { id: 'load',     label: 'Load',      },
+  { id: 'solar',    label: 'Solar',     },
+  { id: 'system',   label: 'System',    },
+  { id: 'finance',  label: 'Finance',   },
+  { id: 'simulate', label: 'Simulate',  },
+  { id: 'results',  label: 'Results',   },
 ];
 
 const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => {
@@ -1065,7 +1063,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
     <>
       <link href={FONT_URL} rel="stylesheet" />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+        `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');`
         * { box-sizing: border-box; }
         body { margin: 0; background: #F4F7FB; }
 
@@ -1108,17 +1106,11 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
             </button>
             <div style={{ width: 1, height: 18, background: C.border }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{
-                width: 26, height: 26, borderRadius: 7,
-                background: `linear-gradient(135deg, ${C.cyanDark}, ${C.cyan})`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13,
-              }}>⚡</div>
               <div>
                 <div style={{
-                  fontSize: 15, fontWeight: 600, color: C.text,
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: 'italic', letterSpacing: -0.3, lineHeight: 1,
+                  fontSize: 16, fontWeight: 700, color: C.text,
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: -0.3, lineHeight: 1,
                 }}>MIRIDA</div>
                 <div style={{ fontSize: 9, color: C.textDim, letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: "'DM Sans', sans-serif", marginTop: 1 }}>
                   Mini-Grid Resource Integration & Design Analyzer
@@ -1136,7 +1128,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 border: `1px solid ${C.border}`,
                 background: C.surface,
               }}>
-                📋 {project.name}
+                {project.name}
               </span>
             )}
           </div>
@@ -1144,17 +1136,17 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* Right — actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {onOpenSizing && (
-              <Btn variant="secondary" onClick={onOpenSizing} icon="⚡" style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
+              <Btn variant="secondary" onClick={onOpenSizing} style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
                 Quick Size
               </Btn>
             )}
             {sim && (
-              <Btn variant="ghost" onClick={exportCSV} icon="↓" style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
+              <Btn variant="ghost" onClick={exportCSV} style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
                 CSV
               </Btn>
             )}
             {sim && (
-              <Btn variant="primary" onClick={exportPDF} disabled={pdfGenerating} icon={pdfGenerating ? '⏳' : '📄'} style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
+              <Btn variant="primary" onClick={exportPDF} disabled={pdfGenerating} style={{ padding: '6px 14px', fontSize: 11, borderRadius: 20 }}>
                 {pdfGenerating ? 'Generating...' : 'Export PDF'}
               </Btn>
             )}
@@ -1191,7 +1183,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 whiteSpace: 'nowrap', transition: 'all 0.2s',
                 letterSpacing: 0.3,
               }}>
-                <span style={{ fontSize: done ? 11 : 12 }}>{done ? '✓' : s.icon}</span>
+                <span style={{ fontSize: 11 }}>{done ? '✓' : i + 1}</span>
                 {s.label}
               </button>
             );
@@ -1204,7 +1196,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 0: PROJECT ══════════════════════════════ */}
           {step === 0 && (
             <div className="step-content">
-              <SectionHead icon="📋" title="Project Setup" sub="Define the project site and basic information." />
+              <SectionHead title="Project Setup" sub="Define the project site and basic information." />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <Card style={{ gridColumn: '1 / -1' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -1289,7 +1281,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 2: SOLAR ════════════════════════════════ */}
           {step === 2 && (
             <div className="step-content">
-              <SectionHead icon="☀️" title="Solar Resource" sub="Retrieve or define the hourly solar irradiance for the project site." />
+              <SectionHead title="Solar Resource" sub="Retrieve or define the hourly solar irradiance for the project site." />
 
               <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                 {[
@@ -1325,7 +1317,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                       </div>
                     ))}
                   </div>
-                  <Btn onClick={fetchSolar} disabled={solar.fetching || !project.lat || !project.lng} icon={solar.fetching ? '⏳' : '🌍'}>
+                  <Btn onClick={fetchSolar} disabled={solar.fetching || !project.lat || !project.lng}>
                     {solar.fetching ? 'Fetching solar data...' : 'Fetch Solar Resource Data'}
                   </Btn>
                   {solar.fetchError && (
@@ -1394,7 +1386,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 3: SYSTEM ═══════════════════════════════ */}
           {step === 3 && (
             <div className="step-content">
-              <SectionHead icon="⚙️" title="System Configuration" sub="Define the size and parameters of each system component." />
+              <SectionHead title="System Configuration" sub="Define the size and parameters of each system component." />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
                 {/* PV Array */}
@@ -1541,7 +1533,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 4: FINANCE ══════════════════════════════ */}
           {step === 4 && (
             <div className="step-content">
-              <SectionHead icon="₦" title="Financial Parameters" sub="Set equipment costs and economic assumptions. Nigerian market defaults are pre-loaded." />
+              <SectionHead title="Financial Parameters" sub="Set equipment costs and economic assumptions. Nigerian market defaults are pre-loaded." />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
                 <Card>
@@ -1606,7 +1598,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 5: SIMULATE ═════════════════════════════ */}
           {step === 5 && (
             <div className="step-content">
-              <SectionHead icon="▶" title="Run Simulation" sub="Execute the 8760-hour hourly dispatch model." />
+              <SectionHead title="Run Simulation" sub="Execute the 8760-hour hourly dispatch model." />
 
               {/* Pre-sim checklist */}
               <Card style={{ marginBottom: 20 }}>
@@ -1665,7 +1657,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 <Btn onClick={runSimulation} disabled={simRunning} icon={simRunning ? '⏳' : '▶'} style={{ padding: '14px 28px', fontSize: 14 }}>
                   {simRunning ? 'Simulating...' : 'Run 8760-Hour Simulation'}
                 </Btn>
-                {sim && <Btn variant="secondary" onClick={() => setStep(6)} icon="📊">View Results</Btn>}
+                {sim && <Btn variant="secondary" onClick={() => setStep(6)}>View Results</Btn>}
               </div>
 
               <div style={{ marginTop: 20, padding: '12px 16px', background: C.surface, borderRadius: 8, fontSize: 11, color: C.textDim, lineHeight: 1.8 }}>
@@ -1678,7 +1670,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {step === 6 && sim && fin && (
             <div className="step-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <SectionHead icon="📊" title="Simulation Results" sub={`${project.name || 'Mini-Grid'} · ${project.location || ''}`} />
+                <SectionHead title="Simulation Results" sub={`${project.name || 'Mini-Grid'} · ${project.location || ''}`} />
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Btn variant="secondary" onClick={exportCSV} icon="↓" style={{ fontSize: 11 }}>Hourly CSV</Btn>
                   <Btn variant="primary" onClick={exportPDF} disabled={pdfGenerating} icon={pdfGenerating ? '⏳' : '📄'} style={{ fontSize: 11 }}>
