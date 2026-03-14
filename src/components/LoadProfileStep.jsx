@@ -57,7 +57,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { NIGERIA_DEFAULTS, LOAD_SHAPES } from '../utils/simulateSystem';
 
 /* ─── Design tokens (match DesignTool.js) ───────────────────────────────── */
@@ -237,14 +237,16 @@ function TemplateGrid({ templates, selectedId, onSelect, color = C.cyan }) {
 }
 
 /* ─── Mode 4: Custom Demand Builder ─────────────────────────────────────── */
+// Defined outside the component — stable constant, never changes
+const SEGMENT_HOURS = {
+  night:   [0, 1, 2, 3, 4, 5],
+  morning: [6, 7, 8, 9],
+  daytime: [10, 11, 12, 13, 14, 15, 16],
+  evening: [17, 18, 19, 20, 21, 22, 23],
+};
+
 function CustomDemandBuilder({ segments, onChange, dailyKwh }) {
   // segments = { morning, daytime, evening, night }  each 0–1 (relative fraction)
-  const SEGMENT_HOURS = {
-    night:   [0, 1, 2, 3, 4, 5],
-    morning: [6, 7, 8, 9],
-    daytime: [10, 11, 12, 13, 14, 15, 16],
-    evening: [17, 18, 19, 20, 21, 22, 23],
-  };
 
   // Build 24-hr shape from segments
   const shape24 = useMemo(() => {
