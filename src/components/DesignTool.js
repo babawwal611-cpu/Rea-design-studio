@@ -155,7 +155,7 @@ const Gauge = ({ value, max = 100, color = C.cyan, label, size = 120 }) => {
       </defs>
       <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke={C.border} strokeWidth={8} strokeLinecap="round" />
       {pct > 0 && <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" filter="url(#gaugeGlow)" />}
-      <text x={cx} y={cy - 2} textAnchor="middle" fill={color} fontSize={size * 0.18} fontWeight={700} fontFamily="'IBM Plex Mono', monospace">{fmt(value, 1)}%</text>
+      <text x={cx} y={cy - 2} textAnchor="middle" fill={color} fontSize={size * 0.18} fontWeight={700} fontFamily="'DM Sans', sans-serif">{fmt(value, 1)}%</text>
       <text x={cx} y={cy + 12} textAnchor="middle" fill={C.textDim} fontSize={size * 0.09} fontFamily="'DM Sans', sans-serif">{label}</text>
     </svg>
   );
@@ -313,7 +313,7 @@ const DonutChart = ({ slices, size = 140 }) => {
           <div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
             <span style={{ width: 10, height: 10, borderRadius: 2, background: p.color, display: 'inline-block', flexShrink: 0 }} />
             <span style={{ fontSize: 11, color: C.textMid, fontFamily: "'DM Sans',sans-serif" }}>{p.label}</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: p.color, fontFamily: "'IBM Plex Mono',monospace", marginLeft: 'auto', minWidth: 40, textAlign: 'right' }}>{p.pct}%</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: p.color, fontFamily: "'DM Sans', sans-serif", marginLeft: 'auto', minWidth: 40, textAlign: 'right' }}>{p.pct}%</span>
           </div>
         ))}
       </div>
@@ -1151,7 +1151,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
               </Btn>
             )}
             <div style={{
-              fontSize: 10, color: C.textDim, fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10, color: C.textDim, fontFamily: "'DM Sans', sans-serif",
               padding: '4px 12px', borderRadius: 20, border: `1px solid ${C.border}`,
             }}>
               v1.0
@@ -1252,7 +1252,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 <Card style={{ gridColumn: '1 / -1' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                     <Label>Site Location Map</Label>
-                    <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'IBM Plex Mono', monospace" }}>
+                    <span style={{ fontSize: 10, color: C.textDim, fontFamily: "'DM Sans', sans-serif" }}>
                       Satellite imagery · OpenStreetMap
                     </span>
                   </div>
@@ -1326,7 +1326,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   {solar.fetched && (
                     <div style={{ marginTop: 16, padding: '14px', background: `${C.cyan}08`, border: `1px solid ${C.cyan}30`, borderRadius: 8 }}>
                       <div style={{ fontSize: 12, color: C.cyan, fontWeight: 700, marginBottom: 4 }}>
-                        ✅ Solar data ready · Source: <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{solar.dataSource || 'PVGIS'}</span>
+                        ✅ Solar data ready · Source: <span style={{ fontFamily: "'DM Sans', sans-serif" }}>{solar.dataSource || 'PVGIS'}</span>
                       </div>
                       <div style={{ fontSize: 11, color: C.textMid }}>8,760 hourly values · Avg GHI: <strong style={{ color: C.text }}>{solar.avg_ghi} kWh/m²/day</strong></div>
                     </div>
@@ -1346,7 +1346,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                         transition: 'all 0.15s',
                       }}>
                         <div style={{ fontSize: 12, fontWeight: 700, color: solar.cityIndex === i ? C.cyan : C.text, fontFamily: "'DM Sans', sans-serif" }}>{city.name}</div>
-                        <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'IBM Plex Mono', monospace", marginTop: 3 }}>
+                        <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
                           GHI {city.avg_ghi} · {city.avg_temp}°C
                         </div>
                       </button>
@@ -1440,7 +1440,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 <Card style={{ gridColumn: '1 / -1' }} glow={system.gen_enabled ? C.gold : undefined}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: system.gen_enabled ? C.gold : C.textDim, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      🔌 Diesel Generator (Backup)
+                      Diesel Generator (Backup)
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ fontSize: 11, color: C.textMid }}>Enable</span>
@@ -1467,7 +1467,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                       </div>
                       <div>
                         <Label hint="L/hr per kW at full load">Fuel Consumption</Label>
-                        <div style={{ padding: '10px 14px', background: C.surface, borderRadius: 8, fontSize: 12, color: C.textMid, fontFamily: "'IBM Plex Mono', monospace" }}>
+                        <div style={{ padding: '10px 14px', background: C.surface, borderRadius: 8, fontSize: 12, color: C.textMid, fontFamily: "'DM Sans', sans-serif" }}>
                           ~{fmt(0.246 * system.gen_capacity_kw, 1)} L/hr @ full
                         </div>
                       </div>
@@ -1478,7 +1478,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 {/* Inverter / Charge Controller */}
                 <Card style={{ gridColumn: '1 / -1' }} glow={C.cyan}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.cyan, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    🔄 Inverter / Charge Controller
+                     Inverter
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                     <div>
@@ -1521,7 +1521,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                     ].map(({ label, value, color }) => (
                       <div key={label}>
                         <div style={{ fontSize: 10, color: C.textDim, marginBottom: 2 }}>{label}</div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color, fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color, fontFamily: "'DM Sans', sans-serif" }}>{value}</div>
                       </div>
                     ))}
                   </div>
@@ -1537,7 +1537,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 14 }}>💰 Equipment Costs ({project.currency})</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 14 }}> Equipment Costs ({project.currency})</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div><Label hint="per kWp installed">Solar PV</Label><Input value={finance.pv_cost_per_kw} onChange={v => fin_('pv_cost_per_kw', v)} unit={`${project.currency}/kWp`} /></div>
                     <div><Label hint="per kWh capacity">Battery ({system.battery_type === 'lithium' ? 'Li-ion' : 'Lead-Acid'})</Label><Input value={finance.battery_cost_per_kwh} onChange={v => fin_('battery_cost_per_kwh', v)} unit={`${project.currency}/kWh`} /></div>
@@ -1549,7 +1549,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 </Card>
 
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.blue, marginBottom: 14 }}>📈 Economic Assumptions</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.blue, marginBottom: 14 }}> Economic Assumptions</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div><Label hint="% of CapEx per year">Annual O&M</Label><Input value={finance.om_pct_annual} onChange={v => fin_('om_pct_annual', v)} min={0} max={0.1} step={0.001} unit="%" /></div>
                     <div><Label>Diesel Fuel Price</Label><Input value={finance.fuel_price_per_litre} onChange={v => fin_('fuel_price_per_litre', v)} unit={`${project.currency}/L`} /></div>
@@ -1585,7 +1585,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                       ].map(({ label, value, color, big }) => (
                         <div key={label}>
                           <div style={{ fontSize: 10, color: C.textDim }}>{label}</div>
-                          <div style={{ fontSize: big ? 20 : 14, fontWeight: 800, color, fontFamily: "'IBM Plex Mono', monospace" }}>{project.currency}{fmtN(value)}</div>
+                          <div style={{ fontSize: big ? 20 : 14, fontWeight: 800, color, fontFamily: "'DM Sans', sans-serif" }}>{project.currency}{fmtN(value)}</div>
                         </div>
                       ));
                     })()}
@@ -1625,13 +1625,13 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   <div style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                       <span style={{ fontSize: 12, color: C.textMid }}>Simulation Progress</span>
-                      <span style={{ fontSize: 12, color: C.cyan, fontFamily: "'IBM Plex Mono', monospace" }}>{simProgress}%</span>
+                      <span style={{ fontSize: 12, color: C.cyan, fontFamily: "'DM Sans', sans-serif" }}>{simProgress}%</span>
                     </div>
                     <div style={{ height: 6, background: C.surface, borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${simProgress}%`, background: `linear-gradient(90deg, ${C.cyanDark}, ${C.cyan})`, transition: 'width 0.3s', borderRadius: 3 }} />
                     </div>
                   </div>
-                  <div style={{ background: C.bg, borderRadius: 8, padding: '12px', maxHeight: 160, overflowY: 'auto', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>
+                  <div style={{ background: C.bg, borderRadius: 8, padding: '12px', maxHeight: 160, overflowY: 'auto', fontFamily: "'DM Sans', sans-serif", fontSize: 11 }}>
                     {simLog.map((line, i) => (
                       <div key={i} className="sim-log-entry" style={{ color: line.includes('✅') ? C.cyan : line.includes('❌') ? C.red : C.textMid, lineHeight: 1.8 }}>{line}</div>
                     ))}
@@ -1641,7 +1641,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
               {!simRunning && simLog.length > 0 && (
                 <Card style={{ marginBottom: 20, background: C.cyanDim, border: `1px solid ${C.cyan}30` }}>
-                  <div style={{ background: C.bg, borderRadius: 8, padding: '12px', maxHeight: 120, overflowY: 'auto', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>
+                  <div style={{ background: C.bg, borderRadius: 8, padding: '12px', maxHeight: 120, overflowY: 'auto', fontFamily: "'DM Sans', sans-serif", fontSize: 11 }}>
                     {simLog.map((line, i) => (
                       <div key={i} style={{ color: line.includes('✅') ? C.cyan : line.includes('❌') ? C.red : C.textMid, lineHeight: 1.8 }}>{line}</div>
                     ))}
@@ -1702,7 +1702,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                     ].map(({ label, value, color, icon }) => (
                       <Card key={label} style={{ padding: '14px 16px' }}>
                         <div style={{ fontSize: 16, marginBottom: 4 }}>{icon}</div>
-                        <div style={{ fontSize: 14, fontWeight: 800, color, fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.2 }}>{value}</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.2 }}>{value}</div>
                         <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>{label}</div>
                       </Card>
                     ))}
@@ -1805,7 +1805,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                         <div key={label} style={{ marginBottom: 8 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                             <span style={{ fontSize: 11, color: C.textMid }}>{label}</span>
-                            <span style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color }}>{project.currency}{fmtN(value)}</span>
+                            <span style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", color }}>{project.currency}{fmtN(value)}</span>
                           </div>
                           <div style={{ height: 4, background: C.surface, borderRadius: 2, overflow: 'hidden' }}>
                             <div style={{ height: '100%', width: `${pct_}%`, background: color, borderRadius: 2, opacity: 0.7 }} />
@@ -1815,7 +1815,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                     })}
                     <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 10, marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>TOTAL CapEx</span>
-                      <span style={{ fontSize: 16, fontWeight: 800, color: C.gold, fontFamily: "'IBM Plex Mono', monospace" }}>{project.currency}{fmtN(fin.capex.total)}</span>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: C.gold, fontFamily: "'DM Sans', sans-serif" }}>{project.currency}{fmtN(fin.capex.total)}</span>
                     </div>
                   </div>
 
@@ -1837,7 +1837,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                             <div style={{ fontSize: 11, color: C.textMid }}>{label}</div>
                             {hint && <div style={{ fontSize: 9, color: C.textDim }}>{hint}</div>}
                           </div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color, fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color, fontFamily: "'DM Sans', sans-serif" }}>{value}</div>
                         </div>
                       ))}
                     </div>
