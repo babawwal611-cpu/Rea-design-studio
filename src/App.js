@@ -2,16 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import DesignTool from './components/DesignTool';
 import LandingPage from './components/LandingPage';
 import PredictiveSizing from './components/PredictiveSizing';
+import ToolSelection from './components/ToolSelection';
 
 function getPage(hash) {
   if (hash === '#/studio')  return 'studio';
   if (hash === '#/sizing')  return 'sizing';
+  if (hash === '#/select')  return 'select';
   return 'landing';
 }
 
 export default function App() {
   const [page, setPage] = useState(() => getPage(window.location.hash));
-  // Sizing results to pre-fill studio when user "pushes" from sizing tool
   const sizingPreload = useRef(null);
 
   useEffect(() => {
@@ -26,9 +27,10 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
-  const goToStudio  = ()       => nav('#/studio', 'studio');
-  const goToSizing  = ()       => nav('#/sizing', 'sizing');
-  const goToLanding = ()       => nav('',         'landing');
+  const goToLanding    = () => nav('',         'landing');
+  const goToSelect     = () => nav('#/select',  'select');
+  const goToStudio     = () => nav('#/studio',  'studio');
+  const goToSizing     = () => nav('#/sizing',  'sizing');
 
   const handlePushToSimulation = (sizingResult) => {
     sizingPreload.current = sizingResult;
@@ -46,10 +48,19 @@ export default function App() {
 
   if (page === 'sizing') return (
     <PredictiveSizing
-      onBack={goToStudio}
+      onBack={goToSelect}
       onPushToSimulation={handlePushToSimulation}
     />
   );
 
-  return <LandingPage onEnter={goToStudio} onOpenSizing={goToSizing} />;
+  if (page === 'select') return (
+    <ToolSelection
+      onSelectStudio={goToStudio}
+      onSelectSizing={goToSizing}
+      onBack={goToLanding}
+    />
+  );
+
+  // Landing page — both buttons route to the selection screen
+  return <LandingPage onEnter={goToSelect} onOpenSizing={goToSelect} />;
 }
