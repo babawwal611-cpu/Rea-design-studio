@@ -8,7 +8,6 @@ const C = {
 };
 
 const FONT = "'DM Sans', sans-serif";
-const MONO = "'IBM Plex Mono', monospace";
 
 /* ─── SVG layout constants ───────────────────────────────────────────────── */
 const W = 800, H = 420;
@@ -106,7 +105,7 @@ function NodeBox({ id, power, unit = 'kW', highlight }) {
         {n.label}
       </text>
       <text x={n.x} y={n.y + 18} textAnchor="middle" fontSize={11}
-        fill={isActive ? '#1A2B3C' : '#CBD5E1'} fontFamily={MONO} fontWeight={700}>
+        fill={isActive ? '#1A2B3C' : '#CBD5E1'} fontFamily={FONT} fontWeight={700}>
         {power > 0 ? `${power.toFixed(1)} ${unit}` : '—'}
       </text>
     </g>
@@ -178,7 +177,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
         </div>
         <div style={{
           padding: '6px 14px', background: C.cyanDim, borderRadius: 8,
-          fontSize: 12, fontWeight: 600, color: C.cyan, fontFamily: MONO,
+          fontSize: 12, fontWeight: 600, color: C.cyan, fontFamily: FONT,
         }}>
           {timeLabel}  ·  Hour {hour + 1} of 8,760
         </div>
@@ -228,7 +227,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
             <rect x={40} y={260 + 100 * (1 - socPct/100)} width={16} height={100 * socPct/100} rx={8}
               fill={socColor} style={{ transition: 'all 0.3s', filter: `drop-shadow(0 0 4px ${socColor}80)` }} />
             <text x={48} y={250} textAnchor="middle" fontSize={9} fill={C.textDim} fontFamily={FONT}>SOC</text>
-            <text x={48} y={372} textAnchor="middle" fontSize={9} fill={socColor} fontFamily={MONO} fontWeight={700}>
+            <text x={48} y={372} textAnchor="middle" fontSize={9} fill={socColor} fontFamily={FONT} fontWeight={700}>
               {Math.round(socPct)}%
             </text>
           </g>
@@ -281,7 +280,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
             borderTop: `3px solid ${color}`,
           }}>
             <div style={{ fontSize: 10, color: C.textDim, marginBottom: 4 }}>{label}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color, fontFamily: MONO }}>{value}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color, fontFamily: FONT }}>{value}</div>
           </div>
         ))}
       </div>
@@ -307,7 +306,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
           <input type="range" min={0} max={maxHour} value={hour}
             onChange={e => { setPlaying(false); setHour(Number(e.target.value)); }}
             style={{ width: '100%', accentColor: C.cyan, cursor: 'pointer' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: C.textDim, fontFamily: MONO, marginTop: 2 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: C.textDim, fontFamily: FONT, marginTop: 2 }}>
             <span>Jan 1, 00:00</span>
             <span>{timeLabel}</span>
             <span>Dec 31, 23:00</span>
@@ -322,7 +321,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
               padding: '4px 10px', borderRadius: 6, border: `1px solid ${speed === s ? C.cyan : C.border}`,
               background: speed === s ? C.cyanDim : 'transparent',
               color: speed === s ? C.cyan : C.textMid,
-              fontSize: 11, cursor: 'pointer', fontFamily: MONO,
+              fontSize: 11, cursor: 'pointer', fontFamily: FONT,
             }}>{s}×</button>
           ))}
         </div>
@@ -358,7 +357,7 @@ export default function EnergyFlowSimulator({ sim, system }) {
               border: `1px solid ${month === i ? C.cyan : C.border}`,
               background: month === i ? C.cyanDim : 'transparent',
               color: month === i ? C.cyan : C.textDim,
-              fontSize: 10, cursor: 'pointer', fontFamily: MONO,
+              fontSize: 10, cursor: 'pointer', fontFamily: FONT,
             }}>{m}</button>
           );
         })}
