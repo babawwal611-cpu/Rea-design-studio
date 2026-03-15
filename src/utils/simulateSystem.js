@@ -603,7 +603,7 @@ export function parseLoadCSV(csvText) {
 export const LOAD_SHAPES = {
   // ── Community shapes ──
   rural_village: {
-    label: 'Rural Evening Peak',
+    label: 'Evening Peak',
     desc: 'Residential evening-dominated demand with morning cook load',
     values: [
       0.15,0.10,0.08,0.07,0.08,0.12,0.30,0.55,
@@ -839,7 +839,7 @@ export const NIGERIA_DEFAULTS = {
     },
     {
       id: 'rural_market',
-      label: 'Rural Market',
+      label: 'Market',
       daily_kwh: 15.0,
       shape_key: 'market',
     },
