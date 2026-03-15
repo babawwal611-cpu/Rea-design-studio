@@ -688,7 +688,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
       setSim(result);
       setFin(finResult);
       setSimProgress(100);
-      log('✅ Analysis complete. Viewing results...');
+      log('Analysis complete. Viewing results...');
 
       setTimeout(() => setStep(6), 600);
     } catch (err) {
