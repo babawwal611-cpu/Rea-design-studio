@@ -497,7 +497,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
               <div style={{ fontSize: 11, fontWeight: 700, color: C.textMid, textTransform: 'uppercase', letterSpacing: 1 }}>24-hr Load Curve</div>
               {load.method !== 'csv' && (
                 <div style={{ fontSize: 11, color: C.textDim, marginTop: 2 }}>
-                  {load.method === 'custom' ? 'Based on custom segment inputs' : `Shape: ${LOAD_SHAPES[load.shape_key?.startsWith('community_') ? 'rural_village' : (load.shape_key || 'rural_village')]?.label || 'Rural Evening Peak'}`}
+                  {load.method === 'custom' ? 'Based on custom segment inputs' : `Shape: ${LOAD_SHAPES[load.shape_key?.startsWith('community_') ? 'rural_village' : (load.shape_key || 'rural_village')]?.label || 'Evening Peak'}`}
                 </div>
               )}
               {load.method === 'csv' && (
