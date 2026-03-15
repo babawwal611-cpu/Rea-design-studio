@@ -1,15 +1,14 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import LoadProfileStep from './LoadProfileStep';
+import SolarStep from './SolarStep';
+
 
 import {
   simulateSystem,
   calculateFinancials,
   parseLoadCSV,
   generateLoadProfile,
-  fetchPVGISSolar,
-  generateSyntheticSolar,
   NIGERIA_DEFAULTS,
-  NIGERIA_CITIES_SOLAR,
 } from '../utils/simulateSystem';
 import SiteMap from './SiteMap';
 import EnergyFlowSimulator from './EnergyFlow';
@@ -384,16 +383,19 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
   /* ── Solar config ── */
   const [solar, setSolar] = useState({
-    method:     'pvgis',
-    cityIndex:  0,
-    avg_ghi:    5.5,
-    avg_temp:   29,
-    solarData:  null,
-    fetching:   false,
-    fetchError: '',
-    fetched:    false,
-    dataSource: '',   // 'PVGIS' | 'NASA POWER' | 'Synthetic' | 'City Preset'
-  });
+  solarData:   null,
+  monthly:     null,
+  avg_ghi:     0,
+  avg_temp:    25,
+  source:      '',
+  fetched:     false,
+  fetching:    false,
+  fetchError:  '',
+  liveSource:  'pvgis',  // 'pvgis' | 'nasa'
+  isLive:      false,
+  manual_ghi:  '',
+  manual_temp: '',
+});
 
   /* ── System config ── */
   const [system, setSystem] = useState({
@@ -493,60 +495,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
   }, []);
 
   /* ── Fetch solar data (PVGIS → NASA POWER → Synthetic cascade) ── */
-  const fetchSolar = useCallback(async () => {
-    const lat = parseFloat(solar.method === 'pvgis' ? project.lat : NIGERIA_CITIES_SOLAR[solar.cityIndex].lat);
-    const lng = parseFloat(solar.method === 'pvgis' ? project.lng : NIGERIA_CITIES_SOLAR[solar.cityIndex].lng);
-
-    if (solar.method === 'pvgis' && (isNaN(lat) || isNaN(lng))) {
-      setErrors(er => ({ ...er, solar: 'Please enter valid coordinates first (Step 1)' }));
-      return;
-    }
-
-    sol('fetching', true);
-    sol('fetchError', '');
-    sol('fetched', false);
-    sol('dataSource', '');
-
-    try {
-      const data = await fetchPVGISSolar(lat, lng);
-      // Detect which source was used from the first record's `source` tag
-      const source = data[0]?.source || 'PVGIS';
-      sol('solarData', data);
-      sol('dataSource', source);
-      const avgGHI = data.reduce((s, h) => s + h.ghi, 0) / (8760 * 1000);
-      sol('avg_ghi', parseFloat((avgGHI * 24).toFixed(2)));
-      sol('fetched', true);
-    } catch (err) {
-      // Both PVGIS and NASA failed — fall back to embedded city-based synthetic
-      sol('fetchError', `Remote APIs unavailable. Using synthetic data based on nearest city profile.`);
-      const cityData = NIGERIA_CITIES_SOLAR.find(c => {
-        const dLat = Math.abs(c.lat - lat), dLng = Math.abs(c.lng - lng);
-        return dLat < 3 && dLng < 3;
-      }) || NIGERIA_CITIES_SOLAR[0];
-      const data = generateSyntheticSolar(cityData.avg_ghi, cityData.avg_temp);
-      sol('solarData', data);
-      sol('avg_ghi', cityData.avg_ghi);
-      sol('dataSource', 'Synthetic');
-      sol('fetched', true);
-    } finally {
-      sol('fetching', false);
-    }
-  }, [solar.method, solar.cityIndex, project.lat, project.lng]);
-
-  /* ── Select city preset ── */
-  const selectCity = useCallback((idx) => {
-    const city = NIGERIA_CITIES_SOLAR[idx];
-    sol('cityIndex', idx);
-    sol('avg_ghi', city.avg_ghi);
-    sol('avg_temp', city.avg_temp);
-    const data = generateSyntheticSolar(city.avg_ghi, city.avg_temp);
-    sol('solarData', data);
-    sol('fetched', true);
-    if (solar.method === 'city') {
-      proj('lat', city.lat.toString());
-      proj('lng', city.lng.toString());
-    }
-  }, [solar.method]);
+  
 
   /* ── Run simulation ── */
   const runSimulation = useCallback(async () => {
@@ -607,15 +556,13 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
       log('Loading solar resource data...');
       setSimProgress(25);
-
-      // Build solar data
-      let solarData = solar.solarData;
-      if (!solarData) {
-        log('No solar data fetched — using synthetic data from GHI input');
-        solarData = generateSyntheticSolar(parseFloat(solar.avg_ghi), parseFloat(solar.avg_temp));
+ 
+      const solarData = solar.solarData;
+      if (!solarData || solarData.length < 8760) {
+        throw new Error('Solar data not loaded. Please complete Step 3 (Solar Resource).');
       }
       const peakGHI = Math.max(...solarData.map(h => typeof h === 'object' ? h.ghi : h));
-      log(`Solar data ready. Peak GHI: ${peakGHI.toFixed(0)} W/m²`);
+      log(`Solar data ready — ${solar.source || 'Atlas'}. Peak GHI: ${peakGHI.toFixed(0)} W/m²`);
 
       log('Configuring system components...');
       setSimProgress(40);
@@ -704,7 +651,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
     switch(step) {
       case 0: return project.name.trim().length > 0;
       case 1: return load.method === 'csv' ? !!load.csvData : load.daily_kwh > 0;
-      case 2: return solar.fetched || solar.method === 'manual';
+      case 2: return solar.fetched && solar.avg_ghi > 0;
       case 3: return system.pv_capacity_kw > 0 && system.battery_capacity_kwh > 0;
       case 4: return true;
       default: return true;
@@ -1280,105 +1227,12 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
           {/* ════════════════════════════════ STEP 2: SOLAR ════════════════════════════════ */}
           {step === 2 && (
             <div className="step-content">
-              <SectionHead title="Solar Resource" sub="Retrieve or define the hourly solar irradiance for the project site." />
-
-              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-                {[
-                  { id: 'pvgis', label: 'Fetch Online' },
-                  { id: 'city',  label: 'Nigerian City Preset' },
-                  { id: 'manual',label: 'Enter GHI Manually'   },
-                ].map(m => (
-                  <button key={m.id} onClick={() => sol('method', m.id)} style={{
-                    padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
-                    background: solar.method === m.id ? C.cyanDim : 'transparent',
-                    border: `1px solid ${solar.method === m.id ? C.cyan : C.border}`,
-                    color: solar.method === m.id ? C.cyan : C.textMid,
-                    fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                  }}>{m.label}</button>
-                ))}
-              </div>
-
-              {solar.method === 'pvgis' && (
-                <Card>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 12, lineHeight: 1.7 }}>
-                    Automatically tries <strong style={{ color: C.text }}>PVGIS (EU JRC)</strong> first, then falls back to <strong style={{ color: C.text }}>NASA POWER</strong>, then local synthetic data. Coordinates from Step 1: <strong style={{ color: C.cyan }}>{project.lat || '—'}, {project.lng || '—'}</strong>
-                  </div>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
-                    {['PVGIS (EU JRC)', 'NASA POWER', 'Synthetic fallback'].map((src, i) => (
-                      <div key={src} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.textDim }}>
-                        {i > 0 && <span style={{ color: C.textDim }}>→</span>}
-                        <span style={{
-                          padding: '2px 8px', borderRadius: 4,
-                          border: `1px solid ${solar.dataSource === src.split(' ')[0] ? C.cyan : C.border}`,
-                          color: solar.dataSource === src.split(' ')[0] ? C.cyan : C.textDim,
-                          background: solar.dataSource === src.split(' ')[0] ? `${C.cyan}15` : 'transparent',
-                        }}>{src}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Btn onClick={fetchSolar} disabled={solar.fetching || !project.lat || !project.lng}>
-                    {solar.fetching ? 'Fetching solar data...' : 'Fetch Solar Resource Data'}
-                  </Btn>
-                  {solar.fetchError && (
-                    <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.gold}10`, border: `1px solid ${C.gold}30`, borderRadius: 8, fontSize: 11, color: C.gold }}>⚠️ {solar.fetchError}</div>
-                  )}
-                  {solar.fetched && (
-                    <div style={{ marginTop: 16, padding: '14px', background: `${C.cyan}08`, border: `1px solid ${C.cyan}30`, borderRadius: 8 }}>
-                      <div style={{ fontSize: 12, color: C.cyan, fontWeight: 700, marginBottom: 4 }}>
-                        Solar data ready · Source: <span style={{ fontFamily: "'DM Sans', sans-serif" }}>{solar.dataSource || 'PVGIS'}</span>
-                      </div>
-                      <div style={{ fontSize: 11, color: C.textMid }}>8,760 hourly values · Avg GHI: <strong style={{ color: C.text }}>{solar.avg_ghi} kWh/m²/day</strong></div>
-                    </div>
-                  )}
-                </Card>
-              )}
-
-              {solar.method === 'city' && (
-                <Card>
-                  <Label>Select Nearest Nigerian City</Label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
-                    {NIGERIA_CITIES_SOLAR.map((city, i) => (
-                      <button key={i} onClick={() => selectCity(i)} style={{
-                        padding: '12px', borderRadius: 8, cursor: 'pointer', textAlign: 'left',
-                        background: solar.cityIndex === i ? C.cyanDim : C.surface,
-                        border: `1px solid ${solar.cityIndex === i ? C.cyan : C.border}`,
-                        transition: 'all 0.15s',
-                      }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: solar.cityIndex === i ? C.cyan : C.text, fontFamily: "'DM Sans', sans-serif" }}>{city.name}</div>
-                        <div style={{ fontSize: 10, color: C.textDim, fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
-                          GHI {city.avg_ghi} · {city.avg_temp}°C
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  {solar.fetched && (
-                    <div style={{ marginTop: 16, padding: '10px 14px', background: `${C.cyan}10`, border: `1px solid ${C.cyan}30`, borderRadius: 8, fontSize: 11, color: C.cyan }}>
-                      Synthetic TMY generated for {NIGERIA_CITIES_SOLAR[solar.cityIndex].name}
-                    </div>
-                  )}
-                </Card>
-              )}
-
-              {solar.method === 'manual' && (
-                <Card>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div>
-                      <Label hint="annual average">Global Horizontal Irradiance</Label>
-                      <Input value={solar.avg_ghi} onChange={v => sol('avg_ghi', v)} min={1} max={9} step={0.01} unit="kWh/m²/d" />
-                      <div style={{ marginTop: 6, fontSize: 10, color: C.textDim }}>Nigeria range: 4.2 (South) — 6.4 (North)</div>
-                    </div>
-                    <div>
-                      <Label hint="annual average ambient">Temperature</Label>
-                      <Input value={solar.avg_temp} onChange={v => sol('avg_temp', v)} min={15} max={45} step={0.5} unit="°C" />
-                    </div>
-                  </div>
-                  <Btn onClick={() => {
-                    const data = generateSyntheticSolar(parseFloat(solar.avg_ghi), parseFloat(solar.avg_temp));
-                    sol('solarData', data); sol('fetched', true);
-                  }} style={{ marginTop: 16 }}>Generate Synthetic TMY</Btn>
-                  {solar.fetched && <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.cyan}10`, border: `1px solid ${C.cyan}30`, borderRadius: 8, fontSize: 11, color: C.cyan }}>✅ Synthetic hourly TMY generated from GHI = {solar.avg_ghi} kWh/m²/day</div>}
-                </Card>
-              )}
+              <SolarStep
+                lat={project.lat}
+                lon={project.lng}
+                solar={solar}
+                sol={sol}
+              />
             </div>
           )}
 
@@ -1606,7 +1460,8 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   { ok: project.name.trim().length > 0,               label: `Project: ${project.name || 'Not set'}` },
                   { ok: load.method !== 'csv' ? load.daily_kwh > 0 : !!load.csvData,
                     label: `Load: ${load.method === 'csv' ? (load.csvData ? load.csvName : 'CSV not uploaded') : `${fmt(load.daily_kwh, 1)} kWh/day (${load.method})`}` },
-                  { ok: solar.fetched || solar.method === 'manual',    label: `Solar: ${solar.fetched ? `${solar.avg_ghi} kWh/m²/day` : 'Not fetched'}` },
+                  { ok: solar.fetched && solar.avg_ghi > 0,
+                    label: `Solar: ${solar.fetched ? `${solar.avg_ghi.toFixed(2)} kWh/m²/day (${solar.source || 'atlas'})` : 'Not loaded'}` },
                   { ok: system.pv_capacity_kw > 0,                     label: `PV: ${system.pv_capacity_kw} kWp` },
                   { ok: system.battery_capacity_kwh > 0,               label: `Battery: ${system.battery_capacity_kwh} kWh` },
                   { ok: true,                                           label: `Generator: ${system.gen_enabled ? system.gen_capacity_kw + ' kW' : 'Disabled'}` },
