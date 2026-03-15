@@ -417,7 +417,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
   /* ── Financial config ── */
   const [finance, setFinance] = useState({
-    pv_cost_per_kw:       400000,
+    pv_cost_per_kw:       ,
     battery_cost_per_kwh: 1000000,
     gen_cost_per_kw:      320000,
     inverter_cost_per_kw: 200000,
