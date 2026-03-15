@@ -418,16 +418,16 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
   /* ── Financial config ── */
   const [finance, setFinance] = useState({
     pv_cost_per_kw:      '',
-    battery_cost_per_kwh: 1000000,
-    gen_cost_per_kw:      320000,
-    inverter_cost_per_kw: 200000,
+    battery_cost_per_kwh: '',
+    gen_cost_per_kw:      '',
+    inverter_cost_per_kw: '',
     bos_pct:              0.17,
     installation_pct:     0.12,
     om_pct_annual:        0.015,
-    fuel_price_per_litre: 1200,
+    fuel_price_per_litre: '',
     discount_rate:        0.12,
     project_lifetime:     20,
-    tariff_per_kwh:       150,
+    tariff_per_kwh:       '',
   });
 
   const proj = (k, v) => setProject(p => ({ ...p, [k]: v }));
@@ -1201,7 +1201,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <div>
                       <Label>Project Name *</Label>
-                      <Input type="text" value={project.name} onChange={v => proj('name', v)} placeholder="e.g. Rimi Village Mini-Grid" />
+                      <Input type="text" value={project.name} onChange={v => proj('name', v)} placeholder="e.g. Rimi Community Mini-Grid" />
                     </div>
                     <div>
                       <Label>Location / Community</Label>
@@ -1390,7 +1390,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
                 {/* PV Array */}
                 <Card glow={C.gold}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.gold, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>☀️ PV Array</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.gold, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>PV Array</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div>
                       <Label>Installed Capacity</Label>
@@ -1414,7 +1414,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
                 {/* Battery */}
                 <Card glow={C.blue}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.blue, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>🔋 Battery Storage</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.blue, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>Battery Storage</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div>
                       <Label>Battery Technology</Label>
@@ -1439,7 +1439,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 <Card style={{ gridColumn: '1 / -1' }} glow={system.gen_enabled ? C.gold : undefined}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: system.gen_enabled ? C.gold : C.textDim, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      Diesel Generator (Backup)
+                      Diesel Generator
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ fontSize: 11, color: C.textMid }}>Enable</span>
@@ -1548,7 +1548,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 </Card>
 
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.blue, marginBottom: 14 }}> Economic Assumptions</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.blue, marginBottom: 14 }}>Economic Assumptions</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div><Label hint="% of CapEx per year">Annual O&M</Label><Input value={finance.om_pct_annual} onChange={v => fin_('om_pct_annual', v)} min={0} max={0.1} step={0.001} unit="%" /></div>
                     <div><Label>Diesel Fuel Price</Label><Input value={finance.fuel_price_per_litre} onChange={v => fin_('fuel_price_per_litre', v)} unit={`${project.currency}/L`} /></div>
@@ -1686,18 +1686,18 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
-                      { label: 'Annual PV Generation',   value: `${fmtN(sim.annual.pv_kwh)} kWh`,    color: C.gold,    icon: '☀️' },
-                      { label: 'Load Demand',            value: `${fmtN(sim.annual.load_kwh)} kWh`,   color: C.blue,    icon: '⚡' },
-                      { label: 'Generator Output',       value: `${fmtN(sim.annual.gen_kwh)} kWh`,    color: sim.annual.gen_kwh > 0 ? C.gold : C.textDim, icon: '🔌' },
-                      { label: 'Excess / Curtailed',     value: `${fmtN(sim.annual.excess_kwh)} kWh`, color: C.blue,    icon: '↑'  },
+                      { label: 'Annual PV Generation',   value: `${fmtN(sim.annual.pv_kwh)} kWh`,    color: C.gold,     },
+                      { label: 'Load Demand',            value: `${fmtN(sim.annual.load_kwh)} kWh`,   color: C.blue,    },
+                      { label: 'Generator Output',       value: `${fmtN(sim.annual.gen_kwh)} kWh`,    color: sim.annual.gen_kwh > 0 ? C.gold : C.textDim, },
+                      { label: 'Excess / Curtailed',     value: `${fmtN(sim.annual.excess_kwh)} kWh`, color: C.blue,     },
                       { label: 'Unserved Load',          value: `${fmtN(sim.annual.unserved_kwh)} kWh (${fmt(sim.annual.unmet_load_fraction, 2)}%)`, color: sim.annual.unmet_load_fraction > 2 ? C.red : C.cyan, icon: '⚠️' },
-                      { label: 'PV Capacity Factor',     value: `${fmt(sim.annual.capacity_factor_pv, 1)}%`, color: C.gold, icon: '📈' },
-                      { label: 'Battery Cycles / Year',  value: `${cycles}`,                          color: cycles > 365 ? C.gold : C.cyan, icon: '🔋' },
-                      { label: 'Loss of Load Prob.',     value: `${fmt(lolp, 2)}%`,                   color: lolp > 2 ? C.red : lolp > 0.5 ? C.gold : C.cyan, icon: '📉' },
-                      { label: 'Fuel Consumed',          value: `${fmtN(sim.annual.fuel_litres)} L`,  color: C.textMid, icon: '⛽' },
-                      { label: 'Avg Daily Load',         value: `${fmt(sim.annual.avg_load_kw, 2)} kW`, color: C.blue,  icon: '〰' },
-                      { label: 'Peak Load',              value: `${fmt(sim.annual.peak_load_kw, 2)} kW`, color: C.blue, icon: '📊' },
-                      { label: 'Batt Throughput',        value: `${fmtN(sim.annual.batt_discharge_kwh)} kWh`, color: C.blue, icon: '↔' },
+                      { label: 'PV Capacity Factor',     value: `${fmt(sim.annual.capacity_factor_pv, 1)}%`, color: C.gold, },
+                      { label: 'Battery Cycles / Year',  value: `${cycles}`,                          color: cycles > 365 ? C.gold : C.cyan, },
+                      { label: 'Loss of Load Prob.',     value: `${fmt(lolp, 2)}%`,                   color: lolp > 2 ? C.red : lolp > 0.5 ? C.gold : C.cyan, },
+                      { label: 'Fuel Consumed',          value: `${fmtN(sim.annual.fuel_litres)} L`,  color: C.textMid, },
+                      { label: 'Avg Daily Load',         value: `${fmt(sim.annual.avg_load_kw, 2)} kW`, color: C.blue,  },
+                      { label: 'Peak Load',              value: `${fmt(sim.annual.peak_load_kw, 2)} kW`, color: C.blue, },
+                      { label: 'Batt Throughput',        value: `${fmtN(sim.annual.batt_discharge_kwh)} kWh`, color: C.blue, },
                     ].map(({ label, value, color, icon }) => (
                       <Card key={label} style={{ padding: '14px 16px' }}>
                         <div style={{ fontSize: 16, marginBottom: 4 }}>{icon}</div>
@@ -1847,7 +1847,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
               {/* ── System Recommendation ── */}
               <Card style={{ marginBottom: 16, background: sim.annual.unmet_load_fraction > 5 ? `${C.red}08` : sim.annual.renewable_fraction < 50 ? `${C.gold}08` : `${C.cyan}08`, border: `1px solid ${sim.annual.unmet_load_fraction > 5 ? C.red : sim.annual.renewable_fraction < 50 ? C.gold : C.cyan}30` }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: sim.annual.unmet_load_fraction > 5 ? C.red : sim.annual.renewable_fraction < 50 ? C.gold : C.cyan, marginBottom: 10 }}>
-                  {sim.annual.unmet_load_fraction > 5 ? '⚠️ System Undersized' : sim.annual.renewable_fraction < 50 ? '🟡 System Viable — Low Renewable Fraction' : '✅ System Design Viable'}
+                  {sim.annual.unmet_load_fraction > 5 ? '⚠️ System Undersized' : sim.annual.renewable_fraction < 50 ? '🟡 System Viable — Low Renewable Fraction' : 'System Design Viable'}
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid, lineHeight: 1.8 }}>
                   {sim.annual.unmet_load_fraction > 5 && `Unmet load of ${fmt(sim.annual.unmet_load_fraction, 1)}% is above the 5% threshold. Consider increasing PV capacity to ${Math.round(system.pv_capacity_kw * 1.3)} kWp or battery to ${Math.round(system.battery_capacity_kwh * 1.25)} kWh. `}
