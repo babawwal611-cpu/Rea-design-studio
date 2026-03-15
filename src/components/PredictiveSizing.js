@@ -352,7 +352,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                           onChange={e => updateAppliance(a.id, 'hours', parseFloat(e.target.value) || 0)}
                           style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: FONT, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
                         />
-                        <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: C.blue, textAlign: 'right' }}>
+                        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: C.blue, textAlign: 'right' }}>
                           {kwh.toFixed(2)}
                         </div>
                         <button onClick={() => removeAppliance(a.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: C.textDim, lineHeight: 1, padding: 0 }}>×</button>
