@@ -70,7 +70,6 @@ const C = {
   text: '#1A2B3C', textMid: '#4A6580', textDim: '#94A3B8',
 };
 const FONT = "'DM Sans', sans-serif";
-const MONO = "'IBM Plex Mono', monospace";
 
 /* ─── Helpers ───────────────────────────────────────────────────────────── */
 const fmt = (n, dec = 0) =>
@@ -130,7 +129,7 @@ function LoadCurvePreview({ values, color = C.cyan, height = 100, showHours = tr
               stroke={C.border} strokeWidth={0.5} />
             {f > 0 && (
               <text x={pad.l - 4} y={y + 3} textAnchor="end"
-                fontSize={9} fill={C.textDim} fontFamily={MONO}>
+                fontSize={9} fill={C.textDim} fontFamily={FONT}>
                 {fmt(max * f, 1)}
               </text>
             )}
@@ -187,7 +186,7 @@ function LoadMetrics({ values, dailyKwh }) {
       ].map(({ label, value, unit, color }) => (
         <div key={label} style={{ background: C.bg, borderRadius: 10, padding: '10px 12px' }}>
           <div style={{ fontSize: 10, color: C.textDim, marginBottom: 4 }}>{label}</div>
-          <div style={{ fontSize: 18, fontWeight: 600, color, fontFamily: MONO }}>{value}</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color, fontFamily: FONT }}>{value}</div>
           <div style={{ fontSize: 10, color: C.textDim }}>{unit}</div>
         </div>
       ))}
@@ -227,7 +226,7 @@ function TemplateGrid({ templates, selectedId, onSelect, color = C.cyan }) {
           }}>
             <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icon}</div>
             <div style={{ fontSize: 11, fontWeight: 700, color: active ? color : C.text, fontFamily: FONT, lineHeight: 1.3 }}>{t.label}</div>
-            <div style={{ fontSize: 10, color: C.textDim, marginTop: 4, fontFamily: MONO }}>{t.daily_kwh} kWh/day</div>
+            <div style={{ fontSize: 10, color: C.textDim, marginTop: 4, fontFamily: FONT }}>{t.daily_kwh} kWh/day</div>
             {t.note && <div style={{ fontSize: 9, color: C.textMid, marginTop: 3 }}>{t.note}</div>}
           </button>
         );
@@ -288,7 +287,7 @@ function CustomDemandBuilder({ segments, onChange, dailyKwh }) {
                 <span style={{ fontSize: 11, color: C.textDim, marginLeft: 8 }}>{hours}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 13, fontFamily: MONO, fontWeight: 600, color, minWidth: 36, textAlign: 'right' }}>
+                <span style={{ fontSize: 13, fontFamily: FONT, fontWeight: 600, color, minWidth: 36, textAlign: 'right' }}>
                   {fmt(segments[key] * 100, 0)}%
                 </span>
                 <span style={{ fontSize: 11, color: C.textDim, minWidth: 48 }}>
@@ -362,7 +361,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
     <div className="step-content">
       {/* Section header — matches DesignTool SectionHead component */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 11, color: C.textDim, letterSpacing: 2, textTransform: 'uppercase', fontFamily: MONO, marginBottom: 4 }}>Step 2</div>
+        <div style={{ fontSize: 11, color: C.textDim, letterSpacing: 2, textTransform: 'uppercase', fontFamily: FONT, marginBottom: 4 }}>Step 2</div>
         <h2 style={{ fontSize: 22, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', color: C.text, margin: 0 }}>
           Load Profile
         </h2>
@@ -477,7 +476,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
                 type="number" min={0.1} step={0.5}
                 value={load.daily_kwh}
                 onChange={e => ld('daily_kwh', parseFloat(e.target.value) || 0)}
-                style={{ width: 110, padding: '9px 12px', fontSize: 16, fontFamily: MONO, fontWeight: 600, border: `1.5px solid ${C.border}`, borderRadius: 8, color: C.text, outline: 'none' }}
+                style={{ width: 110, padding: '9px 12px', fontSize: 16, fontFamily: FONT, fontWeight: 600, border: `1.5px solid ${C.border}`, borderRadius: 8, color: C.text, outline: 'none' }}
               />
               <span style={{ fontSize: 14, color: C.textMid }}>kWh/day</span>
             </div>
@@ -505,7 +504,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
                 <div style={{ fontSize: 11, color: C.textDim, marginTop: 2 }}>First 24 hours of uploaded CSV</div>
               )}
             </div>
-            <div style={{ fontSize: 22, fontFamily: MONO, fontWeight: 600, color: C.cyan }}>
+            <div style={{ fontSize: 22, fontFamily: FONT, fontWeight: 600, color: C.cyan }}>
               {fmt(load.daily_kwh, 1)} <span style={{ fontSize: 12, color: C.textMid }}>kWh/day</span>
             </div>
           </div>
@@ -529,7 +528,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
               type="number" min={0} max={0.20} step={0.01}
               value={load.load_growth_rate || 0}
               onChange={e => ld('load_growth_rate', parseFloat(e.target.value) || 0)}
-              style={{ width: 80, padding: '8px 10px', fontSize: 14, fontFamily: MONO, border: `1.5px solid ${C.border}`, borderRadius: 8, color: C.text, textAlign: 'center', outline: 'none' }}
+              style={{ width: 80, padding: '8px 10px', fontSize: 14, fontFamily: FONT, border: `1.5px solid ${C.border}`, borderRadius: 8, color: C.text, textAlign: 'center', outline: 'none' }}
             />
             <span style={{ fontSize: 13, color: C.textMid }}>%/yr</span>
           </div>
