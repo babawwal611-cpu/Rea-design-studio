@@ -12,29 +12,27 @@ const C = {
   border: '#E2EAF2', surface: '#FFFFFF',
 };
 const FONT = "'DM Sans', sans-serif";
-const MONO = "'IBM Plex Mono', monospace";
-const SERIF = "'Playfair Display', serif";
 
 /* ─── Common appliances list ─────────────────────────────────────────────── */
 const APPLIANCE_PRESETS = [
-  { name: 'LED Bulb',         watt: 10,   icon: '💡' },
-  { name: 'Fan (ceiling)',     watt: 75,   icon: '🌀' },
-  { name: 'TV (32")',          watt: 60,   icon: '📺' },
-  { name: 'TV (50")',          watt: 120,  icon: '📺' },
-  { name: 'Phone charger',     watt: 10,   icon: '📱' },
-  { name: 'Laptop',            watt: 65,   icon: '💻' },
-  { name: 'Refrigerator',      watt: 150,  icon: '🧊' },
-  { name: 'Deep freezer',      watt: 200,  icon: '🧊' },
-  { name: 'Water pump (0.5hp)',watt: 373,  icon: '💧' },
-  { name: 'Water pump (1hp)',  watt: 746,  icon: '💧' },
-  { name: 'AC (1.5 ton)',      watt: 1500, icon: '❄️'  },
-  { name: 'AC (1 ton)',        watt: 1000, icon: '❄️'  },
-  { name: 'Pressing iron',     watt: 1000, icon: '🧺' },
-  { name: 'Rice cooker',       watt: 700,  icon: '🍚' },
-  { name: 'Microwave',         watt: 900,  icon: '📡' },
-  { name: 'Borehole pump',     watt: 1100, icon: '🌊' },
-  { name: 'CCTV system',       watt: 50,   icon: '📷' },
-  { name: 'Router/modem',      watt: 15,   icon: '📶' },
+  { name: 'LED Bulb',         watt: 10,    },
+  { name: 'Fan (ceiling)',     watt: 75,   },
+  { name: 'TV (32")',          watt: 60,   },
+  { name: 'TV (50")',          watt: 120,  },
+  { name: 'Phone charger',     watt: 10,   },
+  { name: 'Laptop',            watt: 65,   },
+  { name: 'Refrigerator',      watt: 150,  },
+  { name: 'Deep freezer',      watt: 200,  },
+  { name: 'Water pump (0.5hp)',watt: 373,  },
+  { name: 'Water pump (1hp)',  watt: 746,  },
+  { name: 'AC (1.5 ton)',      watt: 1500, },
+  { name: 'AC (1 ton)',        watt: 1000, },
+  { name: 'Pressing iron',     watt: 1000, },
+  { name: 'Rice cooker',       watt: 700,  },
+  { name: 'Microwave',         watt: 900,  },
+  { name: 'Borehole pump',     watt: 1100, },
+  { name: 'CCTV system',       watt: 50,   },
+  { name: 'Router/modem',      watt: 15,   },
 ];
 
 /* ─── Core sizing engine (simplified — no solar/cost params per spec) ─────── */
@@ -107,7 +105,7 @@ const ResultPill = ({ label, value, unit, color = C.blue }) => (
     border: `1px solid ${C.border}`, textAlign: 'center',
   }}>
     <div style={{ fontSize: 11, color: C.textMid, marginBottom: 6 }}>{label}</div>
-    <div style={{ fontSize: 26, fontWeight: 600, color, fontFamily: MONO }}>{value}</div>
+    <div style={{ fontSize: 26, fontWeight: 600, color, fontFamily: FONT }}>{value}</div>
     <div style={{ fontSize: 11, color: C.textDim, marginTop: 3 }}>{unit}</div>
   </div>
 );
@@ -201,7 +199,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         body { margin: 0; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
@@ -230,7 +228,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
             ← Back
           </button>
           <div style={{ width: 1, height: 16, background: C.border }} />
-          <span style={{ fontSize: 15, fontFamily: SERIF, fontStyle: 'italic', color: C.navy }}>Quick System Estimate</span>
+          <span style={{ fontSize: 15, fontFamily: FONT, fontStyle: 'italic', color: C.navy }}>Quick System Estimate</span>
         </div>
         {/* Step progress in topbar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -254,7 +252,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
         {/* ════ STEP 0: ENERGY INPUT ════ */}
         {step === 0 && (
           <div className="fade-up">
-            <h2 style={{ fontSize: 24, fontFamily: SERIF, fontStyle: 'italic', color: C.navy, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontFamily: FONT, color: C.navy, marginBottom: 6 }}>
               How much energy do you need?
             </h2>
             <p style={{ color: C.textMid, fontSize: 14, marginBottom: 24 }}>
@@ -285,7 +283,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
             {energyMethod === 'quick' && (
               <Card>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>⚡ Quick estimate</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Quick estimate</span>
                   <button onClick={() => { setEnergyMethod(null); setQuickKwh(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C.textMid }}>Change method</button>
                 </div>
                 <label style={{ fontSize: 13, color: C.textMid, display: 'block', marginBottom: 8 }}>Average daily energy consumption</label>
@@ -296,7 +294,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                     onChange={e => setQuickKwh(e.target.value)}
                     placeholder="e.g. 50"
                     style={{
-                      flex: 1, padding: '12px 16px', fontSize: 22, fontFamily: MONO, fontWeight: 600,
+                      flex: 1, padding: '12px 16px', fontSize: 22, fontFamily: FONT, fontWeight: 600,
                       border: `1.5px solid ${quickKwh ? C.blue : C.border}`, borderRadius: 10, outline: 'none',
                       color: C.text, background: C.white,
                     }}
@@ -315,7 +313,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
             {energyMethod === 'appliance' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>🔌 Appliance calculator</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Appliance calculator</span>
                   <button onClick={() => { setEnergyMethod(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C.textMid }}>Change method</button>
                 </div>
 
@@ -342,17 +340,17 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                         <input
                           type="number" min={1} value={a.watt}
                           onChange={e => updateAppliance(a.id, 'watt', parseFloat(e.target.value) || 0)}
-                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: MONO, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
+                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: FONT, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
                         />
                         <input
                           type="number" min={1} max={100} value={a.qty}
                           onChange={e => updateAppliance(a.id, 'qty', parseInt(e.target.value) || 1)}
-                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: MONO, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
+                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: FONT, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
                         />
                         <input
                           type="number" min={0} max={24} step={0.5} value={a.hours}
                           onChange={e => updateAppliance(a.id, 'hours', parseFloat(e.target.value) || 0)}
-                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: MONO, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
+                          style={{ padding: '6px 8px', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 13, fontFamily: FONT, color: C.text, textAlign: 'center', background: 'transparent', outline: 'none', width: '100%' }}
                         />
                         <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: C.blue, textAlign: 'right' }}>
                           {kwh.toFixed(2)}
@@ -368,7 +366,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                     <span />
                     <span />
                     <span />
-                    <span style={{ fontFamily: MONO, fontSize: 15, fontWeight: 600, color: C.blue, textAlign: 'right' }}>{applianceKwh.toFixed(2)}</span>
+                    <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: C.blue, textAlign: 'right' }}>{applianceKwh.toFixed(2)}</span>
                     <span />
                   </div>
                 </Card>
@@ -413,7 +411,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
         {/* ════ STEP 1: BACKUP HOURS ════ */}
         {step === 1 && (
           <div className="fade-up">
-            <h2 style={{ fontSize: 24, fontFamily: SERIF, fontStyle: 'italic', color: C.navy, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontFamily: FONT, color: C.navy, marginBottom: 6 }}>
               How many hours of backup do you need?
             </h2>
             <p style={{ color: C.textMid, fontSize: 14, marginBottom: 28 }}>
@@ -442,7 +440,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                       type="number" min={0} max={72} step={0.5}
                       value={backupHours}
                       onChange={e => setBackupHours(parseFloat(e.target.value) || 0)}
-                      style={{ width: 100, padding: '10px 14px', fontSize: 16, fontFamily: MONO, border: `1.5px solid ${C.border}`, borderRadius: 9, outline: 'none', color: C.text }}
+                      style={{ width: 100, padding: '10px 14px', fontSize: 16, fontFamily: FONT, border: `1.5px solid ${C.border}`, borderRadius: 9, outline: 'none', color: C.text }}
                     />
                     <span style={{ fontSize: 14, color: C.textMid }}>hours</span>
                   </div>
@@ -455,7 +453,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
         {/* ════ STEP 2: GRID AVAILABILITY ════ */}
         {step === 2 && (
           <div className="fade-up">
-            <h2 style={{ fontSize: 24, fontFamily: SERIF, fontStyle: 'italic', color: C.navy, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontFamily: FONT, color: C.navy, marginBottom: 6 }}>
               How many hours of grid power per day?
             </h2>
             <p style={{ color: C.textMid, fontSize: 14, marginBottom: 28 }}>
@@ -489,7 +487,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                     onChange={e => setGridHours(parseInt(e.target.value))}
                     style={{ flex: 1, accentColor: C.blue }}
                   />
-                  <span style={{ fontSize: 16, fontFamily: MONO, fontWeight: 600, color: C.blue, minWidth: 80, textAlign: 'right' }}>
+                  <span style={{ fontSize: 16, fontFamily: FONT, fontWeight: 600, color: C.blue, minWidth: 80, textAlign: 'right' }}>
                     {gridHours} hr{gridHours !== 1 ? 's' : ''}/day
                   </span>
                 </div>
@@ -511,7 +509,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
         {/* ════ STEP 3: SOLAR ════ */}
         {step === 3 && (
           <div className="fade-up">
-            <h2 style={{ fontSize: 24, fontFamily: SERIF, fontStyle: 'italic', color: C.navy, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontFamily: FONT, color: C.navy, marginBottom: 6 }}>
               Do you want solar panels included?
             </h2>
             <p style={{ color: C.textMid, fontSize: 14, marginBottom: 28 }}>
@@ -548,7 +546,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
         {/* ════ STEP 4: RESULT ════ */}
         {step === 4 && result && (
           <div className="fade-up">
-            <h2 style={{ fontSize: 24, fontFamily: SERIF, fontStyle: 'italic', color: C.navy, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontFamily: FONT, color: C.navy, marginBottom: 6 }}>
               Your system estimate
             </h2>
             <p style={{ color: C.textMid, fontSize: 14, marginBottom: 24 }}>
@@ -570,28 +568,28 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>Daily energy demand</span>
-                  <span style={{ fontFamily: MONO, fontWeight: 600 }}>{result.daily_kwh.toFixed(1)} kWh/day</span>
+                  <span style={{ fontFamily: FONT, fontWeight: 600 }}>{result.daily_kwh.toFixed(1)} kWh/day</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>Estimated peak load</span>
-                  <span style={{ fontFamily: MONO, fontWeight: 600 }}>{result.peak_kw.toFixed(1)} kW</span>
+                  <span style={{ fontFamily: FONT, fontWeight: 600 }}>{result.peak_kw.toFixed(1)} kW</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>Off-grid window</span>
-                  <span style={{ fontFamily: MONO, fontWeight: 600 }}>{24 - gridHours} hrs/day</span>
+                  <span style={{ fontFamily: FONT, fontWeight: 600 }}>{24 - gridHours} hrs/day</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>Backup buffer</span>
-                  <span style={{ fontFamily: MONO, fontWeight: 600 }}>{backupHours} hrs @ peak</span>
+                  <span style={{ fontFamily: FONT, fontWeight: 600 }}>{backupHours} hrs @ peak</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>Usable battery capacity (85% DoD)</span>
-                  <span style={{ fontFamily: MONO, fontWeight: 600 }}>{result.usable_kwh} kWh</span>
+                  <span style={{ fontFamily: FONT, fontWeight: 600 }}>{result.usable_kwh} kWh</span>
                 </div>
                 {solarSupport && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                     <span style={{ color: C.textMid }}>PV sizing assumption</span>
-                    <span style={{ fontFamily: MONO, fontWeight: 600 }}>4.5 PSH · 80% system efficiency</span>
+                    <span style={{ fontFamily: FONT, fontWeight: 600 }}>4.5 PSH · 80% system efficiency</span>
                   </div>
                 )}
               </div>
@@ -604,7 +602,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
 
             {/* Push to simulation CTA */}
             <div style={{ background: C.navy, borderRadius: 14, padding: '24px', color: '#fff' }}>
-              <div style={{ fontSize: 16, fontWeight: 600, fontFamily: SERIF, fontStyle: 'italic', marginBottom: 8 }}>Ready for detailed analysis?</div>
+              <div style={{ fontSize: 16, fontWeight: 600, fontFamily: FONT, fontStyle: 'italic', marginBottom: 8 }}>Ready for detailed analysis?</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 20, lineHeight: 1.6 }}>
                 These sizes will pre-fill the full 8,760-hour simulation wizard for detailed dispatch modelling, financial analysis, and PDF report generation.
               </div>
