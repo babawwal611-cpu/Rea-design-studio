@@ -373,18 +373,18 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
 
       {/* ── Mode selector ── */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-        <ModeTab id="community" icon="🏘️" label="Community Templates" active={load.method === 'community'} onClick={m => ld('method', m)} />
-        <ModeTab id="facility"  icon="🏥" label="Facility Templates"  active={load.method === 'facility'}  onClick={m => ld('method', m)} />
-        <ModeTab id="csv"       icon="📂" label="Upload CSV"          active={load.method === 'csv'}       onClick={m => ld('method', m)} />
-        <ModeTab id="custom"    icon="🎛️" label="Custom Builder"      active={load.method === 'custom'}    onClick={m => ld('method', m)} />
+        <ModeTab id="community" label="Community Templates" active={load.method === 'community'} onClick={m => ld('method', m)} />
+        <ModeTab id="facility"  label="Facility Templates"  active={load.method === 'facility'}  onClick={m => ld('method', m)} />
+        <ModeTab id="csv"       label="Upload CSV"          active={load.method === 'csv'}       onClick={m => ld('method', m)} />
+        <ModeTab id="custom"    label="Custom Builder"      active={load.method === 'custom'}    onClick={m => ld('method', m)} />
       </div>
 
       {/* ══════════════════ MODE 2: COMMUNITY TEMPLATES ══════════════════ */}
       {load.method === 'community' && (
         <Card>
-          <Label>Select village size</Label>
+          <Label>Select Community size</Label>
           <div style={{ fontSize: 12, color: C.textMid, marginBottom: 10, lineHeight: 1.6 }}>
-            Community-scale loads include a <strong>diversity factor</strong> — coincident peak demand is lower than the simple sum of individual households because not all loads operate simultaneously.
+            Community-scale loads include a <strong>diversity factor</strong> 
           </div>
 
           <TemplateGrid
@@ -413,7 +413,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
         <Card>
           <Label>Select facility type</Label>
           <div style={{ fontSize: 12, color: C.textMid, marginBottom: 10 }}>
-            Single-building or institution loads. Each uses a load shape matched to that facility's typical operating pattern.
+            Single-building or institution loads.
           </div>
           <TemplateGrid
             templates={NIGERIA_DEFAULTS.facility_templates}
@@ -444,7 +444,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
             <input ref={fileInputRef} type="file" accept=".csv,.txt" onChange={handleCSV} style={{ display: 'none' }} />
             {load.csvData ? (
               <>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
+                <div style={{ fontSize: 32, marginBottom: 8 }}></div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: C.cyan }}>{load.csvName}</div>
                 <div style={{ fontSize: 11, color: C.textMid, marginTop: 4 }}>8760 hours loaded · Daily avg: {fmt(load.daily_kwh, 1)} kWh</div>
               </>
