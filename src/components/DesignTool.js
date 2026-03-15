@@ -1172,27 +1172,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   </div>
                 </Card>
 
-                {/* Quick-select Nigerian city */}
-                <Card style={{ gridColumn: '1 / -1' }}>
-                  <Label>Quick-select a Nigerian Location</Label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
-                    {NIGERIA_CITIES_SOLAR.map((city, i) => (
-                      <button key={i} onClick={() => {
-                        proj('lat', city.lat.toString());
-                        proj('lng', city.lng.toString());
-                        proj('location', city.name);
-                      }} style={{
-                        padding: '6px 14px', borderRadius: 20, border: `1px solid ${C.border}`,
-                        background: project.location === city.name ? C.cyanDim : 'transparent',
-                        color: project.location === city.name ? C.cyan : C.textMid,
-                        fontSize: 12, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-                        transition: 'all 0.15s',
-                      }}>
-                        {city.name}
-                      </button>
-                    ))}
-                  </div>
-                </Card>
+            
 
                 {/* Site Map */}
                 <Card style={{ gridColumn: '1 / -1' }}>
