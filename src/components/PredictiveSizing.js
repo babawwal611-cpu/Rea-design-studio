@@ -534,7 +534,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
               </div>
             </div>
             <div style={{ marginTop: 20, padding: '14px 18px', background: C.cyanDim, borderRadius: 10, fontSize: 13, color: C.cyanDark, lineHeight: 1.6 }}>
-              💡 This is a quick estimate — no solar resource or cost parameters are needed here. Use the full 8,760-hour simulation for detailed PV modelling and financial analysis.
+              This is a quick estimate — no solar resource or cost parameters are needed here.
             </div>
           </div>
         )}
@@ -554,7 +554,7 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
               {solarSupport && (
                 <ResultPill label="Solar PV" value={result.pv_kw.toFixed(1)} unit="kWp" color={C.amber} />
               )}
-              <ResultPill label="Battery storage" value={result.battery_kwh} unit="kWh (nameplate)" color={C.blue} />
+              <ResultPill label="Battery storage" value={result.battery_kwh} unit="kWh" color={C.blue} />
               <ResultPill label="Inverter" value={result.inverter_kva.toFixed(1)} unit="kVA" color={C.cyan} />
             </div>
 
