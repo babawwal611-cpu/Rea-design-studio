@@ -1284,9 +1284,9 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
 
               <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                 {[
-                  { id: 'pvgis', label: '🌍 Fetch from API' },
-                  { id: 'city',  label: '📍 Nigerian City Preset' },
-                  { id: 'manual',label: '✏️ Enter GHI Manually'   },
+                  { id: 'pvgis', label: 'Fetch Online' },
+                  { id: 'city',  label: 'Nigerian City Preset' },
+                  { id: 'manual',label: 'Enter GHI Manually'   },
                 ].map(m => (
                   <button key={m.id} onClick={() => sol('method', m.id)} style={{
                     padding: '9px 18px', borderRadius: 8, cursor: 'pointer',
@@ -1325,7 +1325,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   {solar.fetched && (
                     <div style={{ marginTop: 16, padding: '14px', background: `${C.cyan}08`, border: `1px solid ${C.cyan}30`, borderRadius: 8 }}>
                       <div style={{ fontSize: 12, color: C.cyan, fontWeight: 700, marginBottom: 4 }}>
-                        ✅ Solar data ready · Source: <span style={{ fontFamily: "'DM Sans', sans-serif" }}>{solar.dataSource || 'PVGIS'}</span>
+                        Solar data ready · Source: <span style={{ fontFamily: "'DM Sans', sans-serif" }}>{solar.dataSource || 'PVGIS'}</span>
                       </div>
                       <div style={{ fontSize: 11, color: C.textMid }}>8,760 hourly values · Avg GHI: <strong style={{ color: C.text }}>{solar.avg_ghi} kWh/m²/day</strong></div>
                     </div>
@@ -1353,7 +1353,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   </div>
                   {solar.fetched && (
                     <div style={{ marginTop: 16, padding: '10px 14px', background: `${C.cyan}10`, border: `1px solid ${C.cyan}30`, borderRadius: 8, fontSize: 11, color: C.cyan }}>
-                      ✅ Synthetic TMY generated for {NIGERIA_CITIES_SOLAR[solar.cityIndex].name}
+                      Synthetic TMY generated for {NIGERIA_CITIES_SOLAR[solar.cityIndex].name}
                     </div>
                   )}
                 </Card>
@@ -1375,7 +1375,7 @@ const DesignTool = ({ onBack, onOpenSizing, sizingPreload, onClearPreload }) => 
                   <Btn onClick={() => {
                     const data = generateSyntheticSolar(parseFloat(solar.avg_ghi), parseFloat(solar.avg_temp));
                     sol('solarData', data); sol('fetched', true);
-                  }} style={{ marginTop: 16 }} icon="⚙️">Generate Synthetic TMY</Btn>
+                  }} style={{ marginTop: 16 }}>Generate Synthetic TMY</Btn>
                   {solar.fetched && <div style={{ marginTop: 12, padding: '10px 14px', background: `${C.cyan}10`, border: `1px solid ${C.cyan}30`, borderRadius: 8, fontSize: 11, color: C.cyan }}>✅ Synthetic hourly TMY generated from GHI = {solar.avg_ghi} kWh/m²/day</div>}
                 </Card>
               )}
