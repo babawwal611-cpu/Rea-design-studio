@@ -785,8 +785,7 @@ export const NIGERIA_DEFAULTS = {
   community_templates: [
     {
       id: 'community_50hh',
-      label: 'Village (50 Households)',
-      icon: '🏘️',
+      label: 'Community (50 Households)',
       daily_kwh: 125,   // 50 × 2.5 kWh/HH × DF 0.65 effective demand
       shape_key: 'community_50hh',
       hh_count: 50,
@@ -794,8 +793,7 @@ export const NIGERIA_DEFAULTS = {
     },
     {
       id: 'community_100hh',
-      label: 'Village (100 Households)',
-      icon: '🏘️',
+      label: 'Community (100 Households)',
       daily_kwh: 137,   // 100 × 2.5 × DF 0.55
       shape_key: 'community_100hh',
       hh_count: 100,
@@ -803,8 +801,7 @@ export const NIGERIA_DEFAULTS = {
     },
     {
       id: 'community_250hh',
-      label: 'Village (250 Households)',
-      icon: '🏙️',
+      label: 'Community (250 Households)',
       daily_kwh: 281,   // 250 × 2.5 × DF 0.45
       shape_key: 'community_250hh',
       hh_count: 250,
@@ -812,8 +809,7 @@ export const NIGERIA_DEFAULTS = {
     },
     {
       id: 'community_500hh',
-      label: 'Village (500 Households)',
-      icon: '🏙️',
+      label: 'Community (500 Households)',
       daily_kwh: 475,   // 500 × 2.5 × DF 0.38
       shape_key: 'community_500hh',
       hh_count: 500,
@@ -824,65 +820,44 @@ export const NIGERIA_DEFAULTS = {
   // Mode 3 — Facility Templates (single-building scale)
   facility_templates: [
     {
-      id: 'rural_household_basic',
-      label: 'Rural Household (Basic)',
-      icon: '🏠',
-      daily_kwh: 1.2,
-      shape_key: 'rural_village',
-    },
-    {
-      id: 'rural_household_improved',
-      label: 'Rural Household (Improved)',
-      icon: '🏡',
-      daily_kwh: 3.5,
-      shape_key: 'rural_village',
-    },
-    {
       id: 'primary_school',
       label: 'Primary School',
-      icon: '🏫',
       daily_kwh: 8.0,
       shape_key: 'school',
     },
     {
       id: 'health_clinic_basic',
       label: 'Health Clinic (Basic)',
-      icon: '🏥',
       daily_kwh: 12.0,
       shape_key: 'health_clinic',
     },
     {
       id: 'health_clinic_ref',
       label: 'Health Clinic (Vaccine Refrigeration)',
-      icon: '❄️',
       daily_kwh: 25.0,
       shape_key: 'vaccine_clinic',
     },
     {
       id: 'rural_market',
       label: 'Rural Market',
-      icon: '🏪',
       daily_kwh: 15.0,
       shape_key: 'market',
     },
     {
       id: 'borehole',
       label: 'Borehole / Water Pump',
-      icon: '💧',
       daily_kwh: 6.0,
       shape_key: 'borehole',
     },
     {
       id: 'irrigation_pump',
       label: 'Irrigation Pumping Station',
-      icon: '🌾',
       daily_kwh: 40.0,
       shape_key: 'agricultural_pumping',
     },
     {
       id: 'telecom_tower',
       label: 'Telecom Tower',
-      icon: '📡',
       daily_kwh: 14.4,  // 600 W × 24 h
       shape_key: 'telecom_constant',
     },
@@ -890,17 +865,17 @@ export const NIGERIA_DEFAULTS = {
 
   // Legacy flat list kept for backward compatibility with existing code that reads load_templates
   load_templates: [
-    { id: 'community_50hh',         label: 'Village (50 Households)',               daily_kwh: 125,   icon: '🏘️', shape_key: 'community_50hh'        },
-    { id: 'community_100hh',        label: 'Village (100 Households)',              daily_kwh: 137,   icon: '🏘️', shape_key: 'community_100hh'       },
-    { id: 'community_250hh',        label: 'Village (250 Households)',              daily_kwh: 281,   icon: '🏙️', shape_key: 'community_250hh'       },
-    { id: 'community_500hh',        label: 'Village (500 Households)',              daily_kwh: 475,   icon: '🏙️', shape_key: 'community_500hh'       },
-    { id: 'primary_school',         label: 'Primary School',                        daily_kwh: 8.0,   icon: '🏫', shape_key: 'school'                 },
-    { id: 'health_clinic_basic',    label: 'Health Clinic (Basic)',                 daily_kwh: 12.0,  icon: '🏥', shape_key: 'health_clinic'          },
-    { id: 'health_clinic_ref',      label: 'Health Clinic (Vaccine Refrigeration)', daily_kwh: 25.0,  icon: '❄️', shape_key: 'vaccine_clinic'         },
-    { id: 'rural_market',           label: 'Rural Market',                          daily_kwh: 15.0,  icon: '🏪', shape_key: 'market'                 },
-    { id: 'borehole',               label: 'Borehole / Water Pump',                daily_kwh: 6.0,   icon: '💧', shape_key: 'borehole'               },
-    { id: 'irrigation_pump',        label: 'Irrigation Pumping Station',            daily_kwh: 40.0,  icon: '🌾', shape_key: 'agricultural_pumping'   },
-    { id: 'telecom_tower',          label: 'Telecom Tower',                         daily_kwh: 14.4,  icon: '📡', shape_key: 'telecom_constant'       },
+    { id: 'community_50hh',         label: 'Community (50 Households)',               daily_kwh: 125,   shape_key: 'community_50hh'        },
+    { id: 'community_100hh',        label: 'Community (100 Households)',              daily_kwh: 137,   shape_key: 'community_100hh'       },
+    { id: 'community_250hh',        label: 'Community (250 Households)',              daily_kwh: 281,   shape_key: 'community_250hh'       },
+    { id: 'community_500hh',        label: 'Community (500 Households)',              daily_kwh: 475,   shape_key: 'community_500hh'       },
+    { id: 'primary_school',         label: 'Primary School',                        daily_kwh: 8.0,    shape_key: 'school'                 },
+    { id: 'health_clinic_basic',    label: 'Health Clinic (Basic)',                 daily_kwh: 12.0,   shape_key: 'health_clinic'          },
+    { id: 'health_clinic_ref',      label: 'Health Clinic (Vaccine Refrigeration)', daily_kwh: 25.0,   shape_key: 'vaccine_clinic'         },
+    { id: 'rural_market',           label: 'Rural Market',                          daily_kwh: 15.0,   shape_key: 'market'                 },
+    { id: 'borehole',               label: 'Borehole / Water Pump',                daily_kwh: 6.0,    shape_key: 'borehole'               },
+    { id: 'irrigation_pump',        label: 'Irrigation Pumping Station',            daily_kwh: 40.0,   shape_key: 'agricultural_pumping'   },
+    { id: 'telecom_tower',          label: 'Telecom Tower',                         daily_kwh: 14.4,   shape_key: 'telecom_constant'       },
   ],
 };
 
