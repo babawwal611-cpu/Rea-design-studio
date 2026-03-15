@@ -263,14 +263,12 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
             {!energyMethod && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
                 <div className="method-card" onClick={() => setEnergyMethod('quick')}>
-                  <div style={{ fontSize: 28, marginBottom: 10 }}>⚡</div>
                   <div style={{ fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 6 }}>Quick estimate</div>
                   <div style={{ fontSize: 13, color: C.textMid, lineHeight: 1.5 }}>
                     Enter your average daily energy consumption directly in kWh.
                   </div>
                 </div>
                 <div className="method-card" onClick={() => setEnergyMethod('appliance')}>
-                  <div style={{ fontSize: 28, marginBottom: 10 }}>🔌</div>
                   <div style={{ fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 6 }}>Appliance calculator</div>
                   <div style={{ fontSize: 13, color: C.textMid, lineHeight: 1.5 }}>
                     Add your appliances with quantity and daily hours. Total is calculated automatically.
@@ -520,7 +518,6 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                 className={`method-card ${solarSupport ? 'selected' : ''}`}
                 onClick={() => setSolarSupport(true)}
               >
-                <div style={{ fontSize: 32, marginBottom: 10 }}>☀️</div>
                 <div style={{ fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 6 }}>Yes, include solar</div>
                 <div style={{ fontSize: 13, color: C.textMid, lineHeight: 1.6 }}>
                   Solar panels will be sized to cover your full daily demand. Recommended for off-grid or unreliable grid areas.
@@ -530,7 +527,6 @@ export default function PredictiveSizing({ onBack, onPushToSimulation }) {
                 className={`method-card ${!solarSupport ? 'selected' : ''}`}
                 onClick={() => setSolarSupport(false)}
               >
-                <div style={{ fontSize: 32, marginBottom: 10 }}>🔋</div>
                 <div style={{ fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 6 }}>Battery only</div>
                 <div style={{ fontSize: 13, color: C.textMid, lineHeight: 1.6 }}>
                   Size the battery and inverter without solar. Suitable when grid or generator charging is sufficient.
