@@ -362,7 +362,7 @@ export default function LoadProfileStep({ load, ld, fileInputRef, handleCSV, err
       {/* Section header — matches DesignTool SectionHead component */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 11, color: C.textDim, letterSpacing: 2, textTransform: 'uppercase', fontFamily: FONT, marginBottom: 4 }}>Step 2</div>
-        <h2 style={{ fontSize: 22, fontFamily: "'Playfair Display', serif", fontStyle: 'italic', color: C.text, margin: 0 }}>
+        <h2 style={{ fontSize: 22, fontFamily: "'DM Sans', sans-serif", color: C.text, margin: 0 }}>
           Load Profile
         </h2>
         <p style={{ fontSize: 13, color: C.textMid, marginTop: 4 }}>
